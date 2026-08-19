@@ -246,7 +246,8 @@ BUNDLE_SOURCE
  */
 const PANELS = {
   "nspanel-80": { width: 480, height: 480 },
-  "nspanel-120": { width: 1280, height: 800 },
+  // Not one of the three test panels — a wide check for the suite generally.
+  "wide": { width: 1280, height: 800 },
 };
 
 /* ------------------------------------------------------------------ scenes */
@@ -454,12 +455,12 @@ const SCENES = [
     // Same kitchen view on the large panel: one section stays a ~500px column
     // rather than stretching, which is what Home Assistant actually does.
     name: "kitchen-home",
-    panel: "nspanel-120",
+    panel: "wide",
     sections: null, // filled in below from the 80mm scene
   },
   {
     name: "front-door",
-    panel: "nspanel-120",
+    panel: "wide",
     sections: [
       [
         climate({ name: "Living Room Left", grid_options: { columns: 6, rows: 4 } }),
@@ -491,7 +492,7 @@ const SCENES = [
   {
     // Every card in one place, for eyeballing the design language as a set.
     name: "gallery",
-    panel: "nspanel-120",
+    panel: "wide",
     sections: [
       [
         climate({ name: "Climate", grid_options: { columns: 12, rows: 3 } }),
@@ -575,7 +576,7 @@ const SCENES = [
 
 // The large-panel kitchen scene renders the same cards as the 80mm one, so the
 // two screenshots differ only by viewport.
-SCENES.find((s) => s.name === "kitchen-home" && s.panel === "nspanel-120").sections =
+SCENES.find((s) => s.name === "kitchen-home" && s.panel === "wide").sections =
   SCENES.find((s) => s.name === "kitchen-home" && s.panel === "nspanel-80").sections;
 
 /* ------------------------------------------------------------------- drive */

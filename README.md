@@ -184,6 +184,29 @@ npm run watch      # rebuild on change
 npm test           # build + jsdom smoke tests across all seven cards
 ```
 
+## Panel browser baseline
+
+The hardware this suite targets does not all run a current browser, and the
+gap is wide enough to change what you can write:
+
+| Panel | Android | WebView |
+| --- | --- | --- |
+| `px30_evb` (80mm) | 8.1 / SDK 27 | **Chromium 107** |
+| `PX30_Android11` (newer 80mm) | 11 / SDK 30 | Chromium 131 |
+
+Chromium 107 predates `color-mix()` (Chrome 111). Anything whose *meaning*
+rests on a `color-mix()` result silently collapses to its fallback there —
+which is how an active button ended up pixel-identical to an inactive one on
+two of three panels while looking correct everywhere else. State must be
+carried by something older: a ring, a fill, an icon change. Use `color-mix()`
+to enrich, never to distinguish.
+
+Container queries (105) and `aspect-ratio` (88) are fine on both.
+
+Chromium 107 also does not report `prefers-color-scheme: dark` from the panel
+app, so those panels cannot pick up Home Assistant's automatic dark theme —
+the dashboards set a `theme:` per view instead.
+
 ## Visual testing
 
 `npm test` proves behaviour in jsdom. It cannot tell you a button collapsed to
