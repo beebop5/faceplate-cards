@@ -278,6 +278,60 @@ assert(
   );
 }
 
+/* ------------------------------------------------- light with a ceiling */
+{
+  const { root } = await mount("faceplate-light-card", {
+    type: "custom:faceplate-light-card",
+    entity: "light.kitchen",
+    max_brightness: 60,
+  });
+
+  // The fixture sits at 128/255 — half output, so five sixths of a 60% ceiling.
+  assert(
+    text(root).includes("84"),
+    `light: the readout is a share of the ceiling, not of full output (got "${text(root)}")`
+  );
+
+  // The point of rescaling rather than clipping: the top of the slider still
+  // moves the light, and every position maps somewhere different.
+  const slider = root.querySelector("faceplate-slider");
+  const sent = (value) => {
+    calls.length = 0;
+    slider.dispatchEvent(
+      new dom.window.CustomEvent("slider-change", {
+        detail: { value },
+        bubbles: true,
+        composed: true,
+      })
+    );
+    return calls.find(([d, s]) => d === "light" && s === "turn_on")?.[2]
+      ?.brightness_pct;
+  };
+
+  assert(sent(100) === 60, `light: the card's 100% is 60% output (got ${sent(100)})`);
+  assert(sent(50) === 30, `light: the card's 50% is 30% output (got ${sent(50)})`);
+  assert(sent(80) === 48, `light: 80% scales to 48% output (got ${sent(80)})`);
+}
+
+/* ------------------------------- light driven past its ceiling elsewhere */
+{
+  const light = hass.states["light.kitchen"];
+  const original = light.attributes.brightness;
+  light.attributes.brightness = 255;
+
+  const { root } = await mount("faceplate-light-card", {
+    type: "custom:faceplate-light-card",
+    entity: "light.kitchen",
+    max_brightness: 60,
+  });
+  assert(
+    text(root).includes("100") && !text(root).includes("166"),
+    `light: output past the ceiling reads 100%, not above it (got "${text(root)}")`
+  );
+
+  light.attributes.brightness = original;
+}
+
 /* ----------------------------------------------------------------- clock */
 {
   const { root } = await mount("faceplate-clock-card", {

@@ -107,6 +107,17 @@ pressed, which is what a one-shot entity means by "on".
 | `show_color_temp_control` | boolean | `false` | Only appears on lights supporting colour temperature |
 | `use_light_color` | boolean | `true` | Tint the readout and slider with the light's own colour |
 | `show_controls` | boolean | `true` | `false` leaves the readout and sliders |
+| `max_brightness` | number | `100` | Percentage of full output the card treats as its own 100% |
+
+`max_brightness` rescales the card's range onto the ceiling rather than
+clipping at it: at `60`, the card's 100% is 60% output and its 50% is 30%, so
+the slider stays useful over its whole travel. Clipping would leave the top of
+the slider dead, every position in it meaning the same brightness.
+
+It governs this card only — it is not a cap on the light. Anything else
+addressing the entity still reaches full output, and if something does, the
+card reads 100% rather than climbing past it. A ceiling that has to hold
+everywhere belongs in Home Assistant, not in a dashboard card.
 
 Sliders report on release rather than during the drag: a dimmer asked to
 follow every intermediate value over the network stutters.

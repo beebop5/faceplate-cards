@@ -21,6 +21,15 @@ export interface FaceplateLightConfig extends FaceplateBaseConfig {
   /** Tint the readout and the slider with the light's own colour. */
   use_light_color?: boolean;
   show_controls?: boolean;
+  /**
+   * Treat this percentage of the light's output as the card's 100%.
+   *
+   * The card's range is rescaled onto it rather than clipped at it, so the
+   * slider stays useful over its whole travel — a cap that clamped instead
+   * would leave the top of the slider dead, every position in it meaning the
+   * same brightness.
+   */
+  max_brightness?: number;
 }
 
 /** Kelvin values the mired-era `color_temp` attribute maps onto, used only
@@ -61,9 +70,22 @@ export class FaceplateLightCard extends FaceplateCard<FaceplateLightConfig> {
     return this._stateObj?.state === "on";
   }
 
+  /** The ceiling as a percentage of the light's full output; 100 when unset. */
+  private get _maxBrightness(): number {
+    const max = this._config?.max_brightness;
+    return typeof max === "number" && max > 0 && max <= 100 ? max : 100;
+  }
+
+  /** What the card shows: the light's output as a share of the ceiling.
+   *
+   *  Something outside the card can still drive the light past the ceiling —
+   *  an automation, the Home Assistant app — so this is capped at 100 rather
+   *  than allowed to read above full. */
   private get _brightness(): number | undefined {
     const raw = this._stateObj?.attributes.brightness;
-    return typeof raw === "number" ? Math.round((raw / 255) * 100) : undefined;
+    if (typeof raw !== "number") return undefined;
+    const actual = (raw / 255) * 100;
+    return Math.min(100, Math.round((actual / this._maxBrightness) * 100));
   }
 
   private get _supportsBrightness(): boolean {
@@ -97,7 +119,7 @@ export class FaceplateLightCard extends FaceplateCard<FaceplateLightConfig> {
   private _setBrightness = (ev: CustomEvent<{ value: number }>): void => {
     this.hass!.callService("light", "turn_on", {
       entity_id: this._config!.entity,
-      brightness_pct: ev.detail.value,
+      brightness_pct: (ev.detail.value * this._maxBrightness) / 100,
     });
   };
 
@@ -327,11 +349,14 @@ export class FaceplateLightCardEditor extends FaceplateEditor<FaceplateLightConf
     show_color_temp_control: "Warmth slider",
     use_light_color: "Tint with the light's colour",
     show_controls: "Show buttons",
+    max_brightness: "Card's 100% (% of full output)",
   };
 
   protected helpers = {
     show_color_temp_control: "Only appears on lights that support colour temperature",
     show_controls: "Off leaves just the readout and sliders",
+    max_brightness:
+      "60 makes the card's 100% equal 60% output, rescaling the whole slider rather than clipping its top",
   };
 
   protected schema(): HaFormSchema[] {
@@ -352,6 +377,10 @@ export class FaceplateLightCardEditor extends FaceplateEditor<FaceplateLightConf
           { name: "use_light_color", selector: { boolean: {} } },
           { name: "show_controls", selector: { boolean: {} } },
         ],
+      },
+      {
+        name: "max_brightness",
+        selector: { number: { min: 1, max: 100, step: 1, mode: "slider" } },
       },
     ];
   }
