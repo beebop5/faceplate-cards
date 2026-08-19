@@ -965,10 +965,10 @@ export class FaceplateClimateCard extends LitElement {
            on a two-row tile drew a thin ribbon of content in a tall box and
            looked like a mistake. The floors are the old fixed values, so a
            one-row strip is unchanged. */
-        --faceplate-readout-size: clamp(26px, 34cqh, 44px);
-        --faceplate-button-size: clamp(38px, 50cqh, 62px);
-        --faceplate-button-max: clamp(42px, 54cqh, 68px);
-        --faceplate-icon-size: clamp(20px, 26cqh, 32px);
+        --faceplate-readout-size: clamp(26px, 34cqh, 56px);
+        --faceplate-button-size: clamp(38px, 50cqh, 78px);
+        --faceplate-button-max: clamp(42px, 54cqh, 84px);
+        --faceplate-icon-size: clamp(20px, 26cqh, 40px);
         container-type: size;
         /* If this ever lands somewhere its height is indefinite, size
            containment would collapse it to nothing; this keeps it visible. */

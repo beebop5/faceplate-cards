@@ -816,10 +816,10 @@ var ae=Object.defineProperty;var ti=Object.getOwnPropertyDescriptor;var x=(s,e)=
            on a two-row tile drew a thin ribbon of content in a tall box and
            looked like a mistake. The floors are the old fixed values, so a
            one-row strip is unchanged. */
-        --faceplate-readout-size: clamp(26px, 34cqh, 44px);
-        --faceplate-button-size: clamp(38px, 50cqh, 62px);
-        --faceplate-button-max: clamp(42px, 54cqh, 68px);
-        --faceplate-icon-size: clamp(20px, 26cqh, 32px);
+        --faceplate-readout-size: clamp(26px, 34cqh, 56px);
+        --faceplate-button-size: clamp(38px, 50cqh, 78px);
+        --faceplate-button-max: clamp(42px, 54cqh, 84px);
+        --faceplate-icon-size: clamp(20px, 26cqh, 40px);
         container-type: size;
         /* If this ever lands somewhere its height is indefinite, size
            containment would collapse it to nothing; this keeps it visible. */
@@ -1823,12 +1823,17 @@ var ae=Object.defineProperty;var ti=Object.getOwnPropertyDescriptor;var x=(s,e)=
          axis left over: seven buttons across a 480px panel cap at 62px wide,
          so a two-row strip drew 62px squares floating in a 112px card and
          gave back half the space it had asked for. */
-      .row .ctl {
-        flex: 0 0 auto;
-        width: calc(
+      .row {
+        --fp-w: calc(
           (100cqw - (var(--fp-count, 1) - 1) * 4px) / var(--fp-count, 1)
         );
-        height: 100%;
+      }
+      .row .ctl {
+        flex: 0 0 auto;
+        width: var(--fp-w);
+        /* Fill the height, but never stretch past a quarter taller than wide.
+           Unbounded, seven buttons on a 889px-tall panel drew 93x200 slivers. */
+        height: min(100%, calc(var(--fp-w) * 1.25));
         max-width: none;
         /* The glyph is sized off the button, not the card. Off the card it
            tracked the card's short side, so a one-row row of seven buttons
