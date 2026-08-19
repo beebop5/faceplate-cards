@@ -1,6 +1,7 @@
 import { html, css, nothing } from "lit";
 import { customElement } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
+import { styleMap } from "lit/directives/style-map.js";
 import { FaceplateCard } from "../core/base-card";
 import {
   ACTION_LABELS,
@@ -114,7 +115,7 @@ export class FaceplateButtonCard extends FaceplateCard<FaceplateButtonConfig> {
         --fp-labels: 20px;
       }
       ha-card.with-name.with-state .ctl.fill {
-        --fp-labels: 38px;
+        --fp-labels: 44px;
       }
       .ctl.fill ha-icon {
         --mdc-icon-size: clamp(16px, 46cqmin, 38px);
@@ -174,6 +175,11 @@ export class FaceplateButtonCard extends FaceplateCard<FaceplateButtonConfig> {
               })}
               title=${name}
               aria-label=${name}
+              style=${styleMap(
+                on && !config.accent
+                  ? { color: "var(--state-active-color, var(--primary-color))" }
+                  : {}
+              )}
               @click=${this._handler!.click}
               @pointerdown=${this._handler!.down}
               @pointerup=${this._handler!.up}

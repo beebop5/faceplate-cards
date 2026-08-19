@@ -228,8 +228,13 @@ export const buttonStyles = css`
     background: var(--primary-color);
     filter: brightness(1.1);
   }
-  /* An "active" button tints itself with its own state colour. Gen1 wall
-     panels ship Chromium 107, which predates color-mix(); the plain
+  /* An "active" button tints itself with its own state colour, which the card
+     supplies as the element's color — the climate card passes the HVAC mode's
+     colour, the others an active-state colour. A card that left color as plain
+     text would tint with the text colour and come out fainter than the
+     inactive button, so every card sets it explicitly.
+
+     Gen1 wall panels ship Chromium 107, which predates color-mix(); the plain
      declaration first means those still get a filled button rather than
      dropping the background entirely. */
   .ctl.on {

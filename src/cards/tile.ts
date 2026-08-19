@@ -1,6 +1,7 @@
 import { html, css, nothing } from "lit";
 import { customElement } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
+import { styleMap } from "lit/directives/style-map.js";
 import { FaceplateCard } from "../core/base-card";
 import {
   ACTION_LABELS,
@@ -195,6 +196,11 @@ export class FaceplateTileCard extends FaceplateCard<FaceplateTileConfig> {
             accent: Boolean(config.accent),
           })}
           title=${name}
+          style=${styleMap(
+            on && !config.accent
+              ? { color: "var(--state-active-color, var(--primary-color))" }
+              : {}
+          )}
           @click=${this._iconTap}
         >
           <ha-icon icon=${icon}></ha-icon>
