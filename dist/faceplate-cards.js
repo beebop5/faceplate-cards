@@ -1768,6 +1768,7 @@ var ae=Object.defineProperty;var ti=Object.getOwnPropertyDescriptor;var x=(s,e)=
               class=${f({ctl:!0,on:o,off:!!i.entity&&!o})}
               title=${i.name??""}
               aria-label=${i.name??i.icon??"button"}
+              style=${o?"color: var(--state-active-color, var(--primary-color))":""}
               @click=${()=>this._press(n,i)}
               @pointerdown=${()=>this._down(n,i)}
               @pointerup=${()=>this._up(n)}

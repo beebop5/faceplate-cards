@@ -188,6 +188,9 @@ export class FaceplateButtonsCard extends FaceplateCard<FaceplateButtonsConfig> 
               class=${classMap({ ctl: true, on, off: Boolean(spec.entity) && !on })}
               title=${spec.name ?? ""}
               aria-label=${spec.name ?? spec.icon ?? "button"}
+              style=${on
+                ? "color: var(--state-active-color, var(--primary-color))"
+                : ""}
               @click=${() => this._press(i, spec)}
               @pointerdown=${() => this._down(i, spec)}
               @pointerup=${() => this._up(i)}
