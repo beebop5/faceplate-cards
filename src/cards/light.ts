@@ -205,6 +205,31 @@ export class FaceplateLightCard extends FaceplateCard<FaceplateLightConfig> {
         gap: 6px;
         flex: none;
       }
+      /* A strip is the slider and the on/off badge, side by side, with no
+         recessed panel around them: the panel's padding and the title row are
+         exactly what stopped this fitting a single row. */
+      ha-card.strip {
+        --faceplate-padding: 6px;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+      }
+      ha-card.strip .lcd {
+        display: contents;
+      }
+      ha-card.strip .lcd-top {
+        display: contents;
+      }
+      ha-card.strip .name {
+        display: none;
+      }
+      ha-card.strip .sliders {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+      ha-card.strip .badge {
+        order: 2;
+      }
       /* On a tile too short for everything, the readout gives up its height
          before the sliders do — a clipped number is still readable, a slider
          pushed out of the card is not usable at all. */
@@ -244,6 +269,12 @@ export class FaceplateLightCard extends FaceplateCard<FaceplateLightConfig> {
       stateObj.attributes.icon ??
       (this._on ? "mdi:lightbulb" : "mdi:lightbulb-outline");
 
+    // With the readout and buttons hidden the card is one slider; the name
+    // rides inside it rather than taking a line of its own, which is the
+    // difference between fitting one grid row and clipping in two.
+    const strip =
+      config.show_state === false && config.show_controls === false;
+
     const showBrightness =
       config.show_brightness_control !== false &&
       this._supportsBrightness &&
@@ -264,7 +295,7 @@ export class FaceplateLightCard extends FaceplateCard<FaceplateLightConfig> {
     );
 
     return html`
-      <ha-card>
+      <ha-card class=${classMap({ strip })}>
         <div class=${classMap({ lcd: true, off: !this._on })}>
           <div class="lcd-top">
             <span class="name" title=${name}>${name}</span>
@@ -301,7 +332,7 @@ export class FaceplateLightCard extends FaceplateCard<FaceplateLightConfig> {
           ? html`<div class="sliders">
               ${showBrightness
                 ? html`<faceplate-slider
-                    label="Brightness"
+                    label=${strip ? name : "Brightness"}
                     unit="%"
                     min="1"
                     max="100"
@@ -313,7 +344,7 @@ export class FaceplateLightCard extends FaceplateCard<FaceplateLightConfig> {
                 : nothing}
               ${showColorTemp
                 ? html`<faceplate-slider
-                    label="Warmth"
+                    label=${strip ? name : "Warmth"}
                     unit="K"
                     .min=${minKelvin}
                     .max=${maxKelvin}
