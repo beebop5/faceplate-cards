@@ -305,7 +305,15 @@ export class FaceplateClockCard extends FaceplateCard<FaceplateClockConfig> {
       hour: "2-digit",
       minute: "2-digit",
       ...(config.show_seconds ? { second: "2-digit" } : {}),
-      ...(this._hour12 === undefined ? {} : { hour12: this._hour12 }),
+      // 24-hour is requested as an explicit hour cycle, not `hour12: false`.
+      // The boolean selects h24, which numbers midnight as 24 — the hour after
+      // midnight rendered as "24:55" on every panel in the house. h23 is the
+      // cycle people mean by "24 hour": 00:55.
+      ...(this._hour12 === undefined
+        ? {}
+        : this._hour12
+          ? { hour12: true }
+          : { hourCycle: "h23" as const }),
       ...(zone ? { timeZone: zone } : {}),
     }).formatToParts(this._now);
 
