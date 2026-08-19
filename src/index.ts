@@ -9,6 +9,7 @@ import "./cards/light";
 import "./cards/clock";
 import "./cards/weather";
 import "./cards/banner";
+import "./cards/buttons";
 
 // The sibling cards register themselves as they load; the climate card is
 // large enough to keep its own module layout under cards/climate/.
@@ -19,7 +20,7 @@ registerCard({
     "Air-conditioner remote with temperature, fan and swing controls, built for small wall panels",
 });
 
-const VERSION = "0.1.12";
+const VERSION = "0.1.13";
 // eslint-disable-next-line no-console
 console.info(
   `%c FACEPLATE-CARDS %c ${VERSION} `,
