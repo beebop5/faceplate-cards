@@ -119,7 +119,6 @@ export class FaceplateButtonCard extends FaceplateCard<FaceplateButtonConfig> {
         justify-content: center;
         align-items: center;
         gap: 4px;
-        padding: 6px;
         container-type: size;
         min-height: 48px;
       }

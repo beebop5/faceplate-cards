@@ -345,6 +345,24 @@ export class FaceplateClimateCard extends LitElement {
     }
   };
 
+  /** Short press steps to the next fan speed; a long press has already opened
+   *  the sheet, where the whole set is laid out at once. A button sitting in a
+   *  row of working controls has to control something — opening a dialog on
+   *  tap made the row read as five buttons of which three did nothing. */
+  private _cycleFan = (section: FanSection): void => {
+    if (this._longPressed) {
+      this._longPressed = false;
+      return;
+    }
+    const { options, current } = section.source;
+    if (!options.length) {
+      this._popup = "config";
+      return;
+    }
+    const next = options[(options.indexOf(current ?? "") + 1) % options.length];
+    section.source.set(next);
+  };
+
   /* ------------------------------------------------------------------ */
   /* Rendering                                                           */
   /* ------------------------------------------------------------------ */
@@ -361,6 +379,9 @@ export class FaceplateClimateCard extends LitElement {
     const mode = stateObj.state;
     const modeColor = HVAC_MODE_COLORS[mode] ?? HVAC_MODE_COLORS.off;
     const fanSections = this._fanSections();
+    // Only the speed section is cyclable from the row; swing and preset stay
+    // in the sheet, where their options are named rather than guessed at.
+    const fanControl = fanSections.find((s) => s.key === "fan");
     const layout = this._config.layout ?? "standard";
     const name =
       this._config.name ?? stateObj.attributes.friendly_name ?? "";
@@ -486,14 +507,19 @@ export class FaceplateClimateCard extends LitElement {
                 ></ha-icon>
               </button>`
             : nothing}
-          ${fanSections.length
+          ${fanControl
             ? html`<button
                 class="ctl"
-                title="Fan & swing"
+                title="Fan speed (hold for all settings)"
                 .disabled=${unavailable}
-                @click=${() => (this._popup = "config")}
+                @click=${() => this._cycleFan(fanControl)}
+                @pointerdown=${this._pressStart}
+                @pointerup=${this._pressEnd}
+                @pointerleave=${this._pressEnd}
+                @pointercancel=${this._pressEnd}
+                @contextmenu=${(e: Event) => e.preventDefault()}
               >
-                <ha-icon icon="mdi:fan"></ha-icon>
+                <ha-icon icon=${fanControl.segmentIcon}></ha-icon>
               </button>`
             : nothing}
           ${this._hasSettings()

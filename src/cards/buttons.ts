@@ -77,16 +77,21 @@ export class FaceplateButtonsCard extends FaceplateCard<FaceplateButtonsConfig> 
   static styles = [
     ...faceplateStyles,
     css`
+      /* Inherits --faceplate-padding rather than setting its own: the frame
+         around a card is the one thing the eye compares across a panel, and a
+         row of controls framed at 6px beside a climate card framed at 10px
+         reads as a mistake even when each card is fine alone. */
       ha-card {
         container-type: size;
         min-height: 48px;
         justify-content: center;
-        padding: 6px;
       }
       .row {
         display: flex;
         align-items: center;
-        justify-content: space-evenly;
+        /* Flush to the padding at both ends, so the visible frame is the
+           padding and not whatever width the squares happened to leave over. */
+        justify-content: space-between;
         gap: 4px;
         width: 100%;
         height: 100%;
@@ -100,8 +105,8 @@ export class FaceplateButtonsCard extends FaceplateCard<FaceplateButtonsConfig> 
       .row .ctl {
         flex: 0 0 auto;
         width: min(
-          100cqh - 12px,
-          (100cqw - (var(--fp-count, 1) - 1) * 4px - 12px) / var(--fp-count, 1)
+          100cqh,
+          (100cqw - (var(--fp-count, 1) - 1) * 4px) / var(--fp-count, 1)
         );
         height: auto;
         max-width: none;
