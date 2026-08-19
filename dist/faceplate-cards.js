@@ -20,8 +20,8 @@ var oe=Object.defineProperty;var Qe=Object.getOwnPropertyDescriptor;var v=(s,e)=
     --faceplate-control-radius: 12px;
     --faceplate-gap: 8px;
     --faceplate-padding: 10px;
-    --faceplate-button-size: 46px;
-    --faceplate-button-max: 60px;
+    --faceplate-button-size: 44px;
+    --faceplate-button-max: 52px;
     --faceplate-icon-size: 24px;
     --faceplate-lcd-background: var(
       --faceplate-lcd-bg,
@@ -72,7 +72,7 @@ var oe=Object.defineProperty;var Qe=Object.getOwnPropertyDescriptor;var v=(s,e)=
 `,wi=g`
   .lcd {
     border-radius: var(--faceplate-radius);
-    padding: 8px 14px 6px;
+    padding: 10px 16px 8px;
     background: var(--faceplate-lcd-background);
     box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.12);
     display: flex;
@@ -1802,7 +1802,7 @@ var oe=Object.defineProperty;var Qe=Object.getOwnPropertyDescriptor;var v=(s,e)=
         font-variant-numeric: tabular-nums;
         text-shadow: 0 0 3px var(--faceplate-lcd-background, rgba(0, 0, 0, 0.6));
       }
-    `],at=h([_(se)],at);A({type:se,name:"Faceplate Buttons",description:"A row of buttons that stays on one line, for sets that do not divide into the grid's twelve columns"});A({type:bt,name:"Faceplate Climate",description:"Air-conditioner remote with temperature, fan and swing controls, built for small wall panels"});var Pi="0.1.16";console.info(`%c FACEPLATE-CARDS %c ${Pi} `,"color:#fff;background:#2196f3;font-weight:700","color:#2196f3;background:#fff;font-weight:700");
+    `],at=h([_(se)],at);A({type:se,name:"Faceplate Buttons",description:"A row of buttons that stays on one line, for sets that do not divide into the grid's twelve columns"});A({type:bt,name:"Faceplate Climate",description:"Air-conditioner remote with temperature, fan and swing controls, built for small wall panels"});var Pi="0.1.17";console.info(`%c FACEPLATE-CARDS %c ${Pi} `,"color:#fff;background:#2196f3;font-weight:700","color:#2196f3;background:#fff;font-weight:700");
 /*! Bundled license information:
 
 @lit/reactive-element/css-tag.js:

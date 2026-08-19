@@ -23,8 +23,8 @@ export const faceplateTokens = css`
     --faceplate-control-radius: 12px;
     --faceplate-gap: 8px;
     --faceplate-padding: 10px;
-    --faceplate-button-size: 46px;
-    --faceplate-button-max: 60px;
+    --faceplate-button-size: 44px;
+    --faceplate-button-max: 52px;
     --faceplate-icon-size: 24px;
     --faceplate-lcd-background: var(
       --faceplate-lcd-bg,
@@ -79,7 +79,7 @@ export const baseStyles = css`
 export const lcdStyles = css`
   .lcd {
     border-radius: var(--faceplate-radius);
-    padding: 8px 14px 6px;
+    padding: 10px 16px 8px;
     background: var(--faceplate-lcd-background);
     box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.12);
     display: flex;
