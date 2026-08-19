@@ -1,0 +1,181 @@
+# Faceplate Cards
+
+A suite of Home Assistant dashboard cards styled like the faceplate of a
+physical appliance: an inset "LCD" readout with round tactile buttons beneath
+it. Built for small wall panels such as the Sonoff NSPanel Pro, where a whole
+dashboard has to fit on one screen and every control has to survive a thumb.
+
+The suite grew out of [ac-remote-card](https://github.com/beebop5/ac-remote-card),
+whose design language it generalises: a recessed panel carrying the numbers, a
+dashed rule under a row of secondary readouts, circular controls that stay
+thumb-sized as the tile shrinks, and popups that take over the screen rather
+than squeezing into a card.
+
+## The cards
+
+| Card | Replaces | What it does |
+| --- | --- | --- |
+| `custom:faceplate-climate-card` | `thermostat`, `mushroom-climate-card` | Air-conditioner remote: setpoint, mode, fan and swing, presets |
+| `custom:faceplate-button-card` | `button` | One round button that fills its tile — toggles, scripts, scenes, navigation |
+| `custom:faceplate-tile-card` | `tile` | Entity row: tactile icon button, name and state |
+| `custom:faceplate-light-card` | `mushroom-light-card` | Light control with recessed brightness and warmth sliders |
+| `custom:faceplate-clock-card` | `clock` | Time and date in LCD figures |
+| `custom:faceplate-weather-card` | `weather-forecast` | Current conditions and a forecast strip |
+| `custom:faceplate-banner-card` | `markdown` | Template-driven status line |
+
+Every card has a visual editor and appears in the card picker under its
+Faceplate name.
+
+## Installation
+
+### Manual
+
+1. Copy `dist/faceplate-cards.js` to `/config/www/faceplate-cards.js`
+2. Add a dashboard resource: *Settings → Dashboards → ⋮ → Resources →*
+   `/local/faceplate-cards.js` as a **JavaScript module**
+
+One resource registers all seven cards.
+
+### HACS
+
+Not yet published. When it is, it will install as a single Dashboard plugin.
+
+## Configuration
+
+Options common to the interactive cards: `entity`, `name`, `icon`,
+`tap_action`, `hold_action`, `double_tap_action`. Actions take Home
+Assistant's own shapes, including both `perform-action` and the older
+`call-service` spelling.
+
+### Climate
+
+A drop-in for `ac-remote-card` — the same option names, so an existing card
+converts by changing `type` alone.
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `entity` | string | **required** | A `climate` entity |
+| `layout` | string | `standard` | `row`, `compact`, `standard` or `large`. `row` puts the readout and buttons on a single line |
+| `current_temperature_entity` | string | — | Read room temperature from this sensor instead of the climate entity |
+| `outdoor_temperature_entity` | string | — | Show an outdoor temperature on the display |
+| `default_mode` | string | — | Mode a short press of the power button turns the unit on to |
+| `hvac_modes` | list | all | Only offer these HVAC modes |
+| `vertical_swing_entity` | string | — | `select` entity to use instead of the climate `swing_mode` |
+| `horizontal_swing_entity` | string | — | `select` entity to use instead of `swing_horizontal_mode` |
+| `setting_entities` | list | — | Extra entities in the settings popup |
+| `show_controls` | boolean | `true` | `false` gives a status-only card with a much larger readout |
+| `show_name`, `show_current_temperature`, `show_fan`, `show_vertical_swing`, `show_horizontal_swing`, `show_settings` | boolean | `true` | Feature toggles; controls also hide themselves when the entity can't do them |
+| `step` | number | entity step | Target temperature step per press |
+
+### Button
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `entity` | string | — | Optional: a button that only navigates needs none |
+| `show_name`, `show_icon` | boolean | `true` | |
+| `show_state` | boolean | `false` | Adds the state under the name |
+| `accent` | boolean | `false` | Fill with the accent colour instead of tinting when on |
+
+### Tile
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `entity` | string | **required** | |
+| `show_state` | boolean | `true` | |
+| `vertical` | boolean | `false` | Icon above the label instead of beside it |
+| `icon_tap_action` | action | toggle / run | The icon acts; the rest of the row opens more-info |
+
+Scripts, scenes and buttons are *run* rather than toggled when their icon is
+pressed, which is what a one-shot entity means by "on".
+
+### Light
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `entity` | string | **required** | A `light` entity |
+| `show_brightness_control` | boolean | `true` | Hidden on lights with no brightness |
+| `show_color_temp_control` | boolean | `false` | Only appears on lights supporting colour temperature |
+| `use_light_color` | boolean | `true` | Tint the readout and slider with the light's own colour |
+| `show_controls` | boolean | `true` | `false` leaves the readout and sliders |
+
+Sliders report on release rather than during the drag: a dimmer asked to
+follow every intermediate value over the network stutters.
+
+### Clock
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `clock_size` | string | `medium` | `small`, `medium`, `large` |
+| `time_format` | string | `auto` | `auto` follows your Home Assistant profile |
+| `show_seconds` | boolean | `false` | Ticks every second instead of every minute |
+| `show_date` | boolean | `true` | |
+| `time_zone` | string | — | IANA name, e.g. `Asia/Hong_Kong` |
+
+### Weather
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `entity` | string | **required** | A `weather` entity |
+| `show_current` | boolean | `true` | |
+| `show_forecast` | boolean | `true` | |
+| `forecast_type` | string | `daily` | `daily`, `hourly` or `twice_daily` |
+| `forecast_slots` | number | `5` | |
+| `secondary_info` | list | `[humidity]` | Any of `humidity`, `wind`, `pressure`, `apparent` |
+
+### Banner
+
+The suite's answer to a markdown card used as a *readout* — a header, a
+"plant needs watering" warning — rather than a general prose renderer. The
+template's output is treated as text: markup is stripped, and how the line
+looks comes from `severity` and `text_size` instead of inline `<font>` tags,
+so a dashboard's banners stay consistent and restyle in one place.
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `content` | string | **required** | Jinja template, re-rendered by Home Assistant when its inputs change |
+| `severity` | string | `plain` | `plain`, `info`, `ok`, `warn`, `alert` |
+| `align` | string | `center` | `left`, `center`, `right` |
+| `text_size` | string | `medium` | `small`, `medium`, `large` |
+| `text_only` | boolean | `false` | Drop the card background, like a heading |
+
+```yaml
+type: custom:faceplate-banner-card
+content: "{{ now().strftime('%H:%M') }}   {{ now().strftime('%a %d %b') }}"
+text_size: large
+text_only: true
+```
+
+```yaml
+type: custom:faceplate-banner-card
+content: Palm needs watering
+severity: alert
+icon: mdi:watering-can
+visibility:
+  - condition: state
+    entity: sensor.palm_moisture_water_warning
+    state: alarm
+```
+
+## Theming
+
+The recessed panel takes `--faceplate-lcd-bg`; sizing follows
+`--faceplate-readout-size`, `--faceplate-button-size`, `--faceplate-button-max`
+and `--faceplate-icon-size`. Climate mode colours follow Home Assistant's
+`--state-climate-*-color` tokens.
+
+## Layout
+
+`src/core` holds the design system — the stylesheet every card composes, the
+action handling, the base card and the schema-driven editor. `src/cards` holds
+one module per card. Everything bundles into a single
+`dist/faceplate-cards.js`, so a dashboard needs one resource however many of
+the cards it uses.
+
+## Development
+
+```sh
+npm install
+npm run build      # bundle to dist/faceplate-cards.js
+npm run watch      # rebuild on change
+npm test           # build + jsdom smoke tests across all seven cards
+```

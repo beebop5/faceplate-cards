@@ -1,0 +1,22 @@
+{
+  "name": "faceplate-cards",
+  "version": "0.1.0",
+  "description": "A suite of Home Assistant dashboard cards styled like the faceplate of a physical appliance — an inset LCD readout with round tactile buttons — optimized for small wall panels such as the NSPanel Pro",
+  "type": "module",
+  "main": "dist/faceplate-cards.js",
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --minify --format=esm --target=chrome100 --outfile=dist/faceplate-cards.js",
+    "watch": "esbuild src/index.ts --bundle --format=esm --target=chrome100 --outfile=dist/faceplate-cards.js --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run build && node test/smoke.mjs"
+  },
+  "dependencies": {
+    "lit": "^3.1.4"
+  },
+  "devDependencies": {
+    "esbuild": "^0.21.5",
+    "jsdom": "^30.0.1",
+    "typescript": "^5.4.5"
+  },
+  "license": "MIT"
+}
