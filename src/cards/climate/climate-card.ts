@@ -10,7 +10,7 @@ import {
   HVAC_MODE_ORDER,
   combinedSwingIcon,
   fanIcon,
-  iconCarriesLabel,
+  fanSpeedLabel,
   swingIcon,
   prettify,
 } from "./const";
@@ -624,19 +624,20 @@ export class FaceplateClimateCard extends LitElement {
           <div class="section-title">${s.title}</div>
           <div class="chips">
             ${s.source.options.map((o) => {
-              const icon = s.icon(o);
-              const iconOnly = iconCarriesLabel(o, icon);
+              // Only fan speeds get a glyph that carries their whole label;
+              // no icon distinguishes "Vertical" from "Horizontal" swing.
+              const carried = s.key === "fan" ? fanSpeedLabel(o) : null;
               return html`<button
                 class=${classMap({
                   chip: true,
-                  "chip-icon": iconOnly,
+                  "chip-icon": carried !== null,
                   active: o === s.source.current,
                 })}
                 title=${prettify(o)}
                 @click=${() => s.source.set(o)}
               >
-                <ha-icon icon=${icon}></ha-icon>
-                ${iconOnly ? nothing : prettify(o)}
+                ${this._renderFanChipIcon(o, s.icon(o), carried)}
+                ${carried === null ? prettify(o) : nothing}
               </button>`;
             })}
           </div>
@@ -684,6 +685,31 @@ export class FaceplateClimateCard extends LitElement {
       if (typeof dialog.close === "function") dialog.close();
       else dialog.removeAttribute("open");
     }
+  }
+
+  /**
+   * Material's fan icons stop at fan-speed-3, so a five-speed unit drew 1, 2
+   * and 3 as numbered glyphs and 4 and 5 as a generic fan with the number
+   * spelled out beside it — half the row numbered, half not, and wide enough
+   * to wrap onto a second line. Every numeric speed is composed the same way
+   * instead: a plain fan with its digit set into the corner, which holds for
+   * however many speeds a unit reports.
+   */
+  private _renderFanChipIcon(
+    _option: string,
+    icon: string,
+    carried: string | null
+  ) {
+    if (carried === null) {
+      return html`<ha-icon icon=${icon}></ha-icon>`;
+    }
+    if (carried === "auto") {
+      return html`<ha-icon icon="mdi:fan-auto"></ha-icon>`;
+    }
+    return html`<span class="fan-glyph">
+      <ha-icon icon="mdi:fan"></ha-icon>
+      <span class="fan-glyph-num">${carried}</span>
+    </span>`;
   }
 
   private _renderSettingsBody() {
@@ -813,6 +839,28 @@ export class FaceplateClimateCard extends LitElement {
         align-items: center;
         gap: 10px;
         flex: none;
+      }
+
+      /* A fan speed drawn rather than borrowed: a plain fan carrying its own
+         digit, so every speed looks the same however many the unit has. */
+      .fan-glyph {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: none;
+      }
+      .fan-glyph ha-icon {
+        --mdc-icon-size: 20px;
+      }
+      .fan-glyph-num {
+        position: absolute;
+        right: -3px;
+        bottom: -2px;
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
       }
 
       /* ------------------ setpoint block in the sheet ----------------- */

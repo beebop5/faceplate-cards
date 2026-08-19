@@ -49,13 +49,18 @@ export function fanIcon(option: string): string {
 }
 
 /**
- * True when the icon already spells out the option, as mdi:fan-speed-2 does for
- * "2" — the chip can then drop the label instead of showing the number twice.
- * Speeds above 3 fall back to a generic icon, so they keep their text.
+ * The label a fan chip's glyph already carries, or null when the chip needs
+ * its text.
+ *
+ * Returns the digit for a bare-numeric speed and "auto" for the automatic
+ * setting. Everything else — "Quiet", "Turbo" — keeps its words, because no
+ * glyph says them unambiguously.
  */
-export function iconCarriesLabel(option: string, icon: string): boolean {
+export function fanSpeedLabel(option: string): string | null {
   const trimmed = option.trim();
-  return /^\d+$/.test(trimmed) && icon.endsWith(`-${trimmed}`);
+  if (/^\d+$/.test(trimmed)) return trimmed;
+  if (/^auto(matic)?$/i.test(trimmed)) return "auto";
+  return null;
 }
 
 /** Best-effort icon for a swing option name. */
