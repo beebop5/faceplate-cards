@@ -1004,15 +1004,18 @@ var ne=Object.defineProperty;var Je=Object.getOwnPropertyDescriptor;var v=(s,e)=
       }
       .glyph-badge {
         position: absolute;
-        right: -0.3em;
-        bottom: -0.14em;
-        /* Material draws its own fan numerals at roughly this weight relative
-           to the glyph; smaller than this and the digit stops being readable
-           across a room, which is the whole point of numbering them. */
-        font-size: 0.58em;
+        right: -14%;
+        bottom: -6%;
+        /* Sized off the same container metric as the icon, not em: em resolves
+           against the inherited font-size, while the icon is sized by
+           --mdc-icon-size, so an em badge stayed ~9px next to a 38px glyph and
+           was unreadable at arm's length. Roughly half the icon, which is the
+           proportion Material draws its own fan numerals at. */
+        font-size: clamp(10px, 23cqmin, 19px);
         font-weight: 700;
         line-height: 1;
         font-variant-numeric: tabular-nums;
+        text-shadow: 0 0 3px var(--faceplate-lcd-background, rgba(0, 0, 0, 0.6));
       }
       /* A size container, so the button can be sized from whichever of the
          tile's two dimensions is smaller. aspect-ratio alone cannot do it:
@@ -1713,7 +1716,7 @@ var ne=Object.defineProperty;var Je=Object.getOwnPropertyDescriptor;var v=(s,e)=
           --faceplate-banner-size: 14px;
         }
       }
-    `],u([w()],j.prototype,"_rendered",2),u([w()],j.prototype,"_error",2),j=u([b(Ge)],j);var Dt=class extends S{constructor(){super(...arguments);this.defaults={severity:"plain",align:"center",text_size:"medium",text_only:!1};this.labels={content:"Content",icon:"Icon (optional)",severity:"Severity",align:"Alignment",text_size:"Text size",text_only:"No card background"};this.helpers={content:"Jinja template, re-rendered by Home Assistant whenever its inputs change. Markup is stripped \u2014 use the options below for styling",severity:"Colours the text; alert is the red 'needs attention' banner",text_only:"Renders straight onto the view, like a heading"}}schema(){return[{name:"content",required:!0,selector:{template:{}}},{name:"icon",selector:{icon:{}}},{type:"grid",name:"",schema:[{name:"severity",selector:{select:{mode:"dropdown",options:[{value:"plain",label:"Plain"},{value:"info",label:"Info"},{value:"ok",label:"OK"},{value:"warn",label:"Warning"},{value:"alert",label:"Alert"}]}}},{name:"align",selector:{select:{mode:"dropdown",options:[{value:"left",label:"Left"},{value:"center",label:"Centre"},{value:"right",label:"Right"}]}}},{name:"text_size",selector:{select:{mode:"dropdown",options:[{value:"small",label:"Small"},{value:"medium",label:"Medium"},{value:"large",label:"Large"}]}}},{name:"text_only",selector:{boolean:{}}}]}]}};Dt=u([b(Ze)],Dt);E({type:Ge,name:"Faceplate Banner",description:"A template-driven status line \u2014 headers, clocks and 'needs attention' warnings"});E({type:_t,name:"Faceplate Climate",description:"Air-conditioner remote with temperature, fan and swing controls, built for small wall panels"});var Mi="0.1.11";console.info(`%c FACEPLATE-CARDS %c ${Mi} `,"color:#fff;background:#2196f3;font-weight:700","color:#2196f3;background:#fff;font-weight:700");
+    `],u([w()],j.prototype,"_rendered",2),u([w()],j.prototype,"_error",2),j=u([b(Ge)],j);var Dt=class extends S{constructor(){super(...arguments);this.defaults={severity:"plain",align:"center",text_size:"medium",text_only:!1};this.labels={content:"Content",icon:"Icon (optional)",severity:"Severity",align:"Alignment",text_size:"Text size",text_only:"No card background"};this.helpers={content:"Jinja template, re-rendered by Home Assistant whenever its inputs change. Markup is stripped \u2014 use the options below for styling",severity:"Colours the text; alert is the red 'needs attention' banner",text_only:"Renders straight onto the view, like a heading"}}schema(){return[{name:"content",required:!0,selector:{template:{}}},{name:"icon",selector:{icon:{}}},{type:"grid",name:"",schema:[{name:"severity",selector:{select:{mode:"dropdown",options:[{value:"plain",label:"Plain"},{value:"info",label:"Info"},{value:"ok",label:"OK"},{value:"warn",label:"Warning"},{value:"alert",label:"Alert"}]}}},{name:"align",selector:{select:{mode:"dropdown",options:[{value:"left",label:"Left"},{value:"center",label:"Centre"},{value:"right",label:"Right"}]}}},{name:"text_size",selector:{select:{mode:"dropdown",options:[{value:"small",label:"Small"},{value:"medium",label:"Medium"},{value:"large",label:"Large"}]}}},{name:"text_only",selector:{boolean:{}}}]}]}};Dt=u([b(Ze)],Dt);E({type:Ge,name:"Faceplate Banner",description:"A template-driven status line \u2014 headers, clocks and 'needs attention' warnings"});E({type:_t,name:"Faceplate Climate",description:"Air-conditioner remote with temperature, fan and swing controls, built for small wall panels"});var Mi="0.1.12";console.info(`%c FACEPLATE-CARDS %c ${Mi} `,"color:#fff;background:#2196f3;font-weight:700","color:#2196f3;background:#fff;font-weight:700");
 /*! Bundled license information:
 
 @lit/reactive-element/css-tag.js:

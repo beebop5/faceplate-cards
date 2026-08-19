@@ -96,15 +96,18 @@ export class FaceplateButtonCard extends FaceplateCard<FaceplateButtonConfig> {
       }
       .glyph-badge {
         position: absolute;
-        right: -0.3em;
-        bottom: -0.14em;
-        /* Material draws its own fan numerals at roughly this weight relative
-           to the glyph; smaller than this and the digit stops being readable
-           across a room, which is the whole point of numbering them. */
-        font-size: 0.58em;
+        right: -14%;
+        bottom: -6%;
+        /* Sized off the same container metric as the icon, not em: em resolves
+           against the inherited font-size, while the icon is sized by
+           --mdc-icon-size, so an em badge stayed ~9px next to a 38px glyph and
+           was unreadable at arm's length. Roughly half the icon, which is the
+           proportion Material draws its own fan numerals at. */
+        font-size: clamp(10px, 23cqmin, 19px);
         font-weight: 700;
         line-height: 1;
         font-variant-numeric: tabular-nums;
+        text-shadow: 0 0 3px var(--faceplate-lcd-background, rgba(0, 0, 0, 0.6));
       }
       /* A size container, so the button can be sized from whichever of the
          tile's two dimensions is smaller. aspect-ratio alone cannot do it:
