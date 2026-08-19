@@ -7,6 +7,12 @@ import { formatNumber, friendlyName, prettify } from "../core/format";
 import { registerCard } from "../core/register";
 import { faceplateStyles } from "../core/styles";
 import type { FaceplateBaseConfig } from "../core/types";
+import {
+  ForecastSubscription,
+  weatherIcon,
+  type ForecastItem,
+  type ForecastType,
+} from "../core/weather";
 
 const CARD = "faceplate-weather-card";
 const EDITOR = "faceplate-weather-card-editor";
@@ -14,37 +20,10 @@ const EDITOR = "faceplate-weather-card-editor";
 export interface FaceplateWeatherConfig extends FaceplateBaseConfig {
   show_current?: boolean;
   show_forecast?: boolean;
-  forecast_type?: "daily" | "hourly" | "twice_daily";
+  forecast_type?: ForecastType;
   forecast_slots?: number;
   secondary_info?: Array<"humidity" | "wind" | "pressure" | "apparent">;
 }
-
-interface ForecastItem {
-  datetime: string;
-  condition?: string;
-  temperature?: number;
-  templow?: number;
-  precipitation_probability?: number;
-}
-
-/** Home Assistant's weather conditions, in the suite's icon set. */
-const CONDITION_ICONS: Record<string, string> = {
-  "clear-night": "mdi:weather-night",
-  cloudy: "mdi:weather-cloudy",
-  exceptional: "mdi:alert-circle-outline",
-  fog: "mdi:weather-fog",
-  hail: "mdi:weather-hail",
-  lightning: "mdi:weather-lightning",
-  "lightning-rainy": "mdi:weather-lightning-rainy",
-  partlycloudy: "mdi:weather-partly-cloudy",
-  pouring: "mdi:weather-pouring",
-  rainy: "mdi:weather-rainy",
-  snowy: "mdi:weather-snowy",
-  "snowy-rainy": "mdi:weather-snowy-rainy",
-  sunny: "mdi:weather-sunny",
-  windy: "mdi:weather-windy",
-  "windy-variant": "mdi:weather-windy-variant",
-};
 
 @customElement(CARD)
 export class FaceplateWeatherCard extends FaceplateCard<FaceplateWeatherConfig> {
@@ -52,8 +31,9 @@ export class FaceplateWeatherCard extends FaceplateCard<FaceplateWeatherConfig> 
 
   @state() private _forecast: ForecastItem[] = [];
 
-  private _unsubscribe?: () => Promise<void>;
-  private _subscribedTo?: string;
+  private _subscription = new ForecastSubscription((forecast) => {
+    this._forecast = forecast;
+  });
 
   public static async getConfigElement() {
     return document.createElement(EDITOR);
@@ -76,65 +56,20 @@ export class FaceplateWeatherCard extends FaceplateCard<FaceplateWeatherConfig> 
 
   public disconnectedCallback(): void {
     super.disconnectedCallback();
-    this._unsubscribeForecast();
+    this._subscription.stop();
   }
 
   protected updated(): void {
-    this._subscribeForecast();
-  }
-
-  private async _unsubscribeForecast(): Promise<void> {
-    const unsub = this._unsubscribe;
-    this._unsubscribe = undefined;
-    this._subscribedTo = undefined;
-    try {
-      await unsub?.();
-    } catch {
-      /* the socket went away with the subscription */
-    }
-  }
-
-  /**
-   * Forecasts arrive by subscription rather than as an attribute — Home
-   * Assistant stopped shipping `attributes.forecast` in 2024.4 because
-   * pushing a full forecast into every state update was expensive. The
-   * attribute is still read as a fallback for older integrations.
-   */
-  private async _subscribeForecast(): Promise<void> {
-    const config = this._config;
-    if (!this.hass?.connection || !config?.entity) return;
-    if (config.show_forecast === false) {
-      await this._unsubscribeForecast();
-      return;
-    }
-    const key = `${config.entity}|${config.forecast_type ?? "daily"}`;
-    if (this._subscribedTo === key) return;
-
-    await this._unsubscribeForecast();
-    this._subscribedTo = key;
-
-    const fallback = this._stateObj?.attributes.forecast;
-    if (Array.isArray(fallback)) this._forecast = fallback;
-
-    try {
-      this._unsubscribe = await this.hass.connection.subscribeMessage(
-        (msg: { forecast?: ForecastItem[] }) => {
-          if (msg.forecast) this._forecast = msg.forecast;
-        },
-        {
-          type: "weather/subscribe_forecast",
-          forecast_type: config.forecast_type ?? "daily",
-          entity_id: config.entity,
-        }
-      );
-    } catch {
-      // An integration with no forecast support just leaves the strip empty.
-      this._subscribedTo = undefined;
-    }
+    this._subscription.sync(
+      this.hass,
+      this._config?.entity,
+      this._config?.forecast_type,
+      this._config?.show_forecast !== false
+    );
   }
 
   private _icon(condition?: string): string {
-    return CONDITION_ICONS[condition ?? ""] ?? "mdi:weather-cloudy";
+    return weatherIcon(condition);
   }
 
   private _slotLabel(item: ForecastItem): string {

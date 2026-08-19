@@ -3,9 +3,15 @@ import { customElement, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { FaceplateCard } from "../core/base-card";
 import { FaceplateEditor, type HaFormSchema } from "../core/base-editor";
+import { formatNumber } from "../core/format";
 import { registerCard } from "../core/register";
 import { faceplateStyles } from "../core/styles";
 import type { FaceplateBaseConfig } from "../core/types";
+import {
+  ForecastSubscription,
+  weatherIcon,
+  type ForecastItem,
+} from "../core/weather";
 
 const CARD = "faceplate-clock-card";
 const EDITOR = "faceplate-clock-card-editor";
@@ -17,6 +23,9 @@ export interface FaceplateClockConfig extends FaceplateBaseConfig {
   show_date?: boolean;
   date_format?: string;
   time_zone?: string;
+  /** A `weather` entity, to put today's outlook beside the date. */
+  weather_entity?: string;
+  show_weather?: boolean;
 }
 
 /** The panel clock: LCD figures, tabular so the layout never twitches. */
@@ -26,7 +35,13 @@ export class FaceplateClockCard extends FaceplateCard<FaceplateClockConfig> {
 
   @state() private _now = new Date();
 
+  @state() private _forecast: ForecastItem[] = [];
+
   private _timer?: number;
+
+  private _subscription = new ForecastSubscription((forecast) => {
+    this._forecast = forecast;
+  });
 
   public static async getConfigElement() {
     return document.createElement(EDITOR);
@@ -52,6 +67,16 @@ export class FaceplateClockCard extends FaceplateCard<FaceplateClockConfig> {
   public disconnectedCallback(): void {
     super.disconnectedCallback();
     window.clearTimeout(this._timer);
+    this._subscription.stop();
+  }
+
+  protected updated(): void {
+    this._subscription.sync(
+      this.hass,
+      this._config?.weather_entity,
+      "daily",
+      this._weatherWanted
+    );
   }
 
   /**
@@ -87,6 +112,10 @@ export class FaceplateClockCard extends FaceplateCard<FaceplateClockConfig> {
     return this.hass?.locale?.language ?? this.hass?.language ?? "en";
   }
 
+  private get _weatherWanted(): boolean {
+    return Boolean(this._config?.weather_entity) && this._show("show_weather");
+  }
+
   static styles = [
     ...faceplateStyles,
     css`
@@ -104,14 +133,16 @@ export class FaceplateClockCard extends FaceplateCard<FaceplateClockConfig> {
         min-height: 0;
         overflow: hidden;
       }
-      /* Each line below the time takes its share out of the figures. */
-      ha-card.with-date {
+      /* Each line below the time takes its share out of the figures. The date
+         and the weather share one line, so a clock showing both is no shorter
+         than a clock showing either. */
+      ha-card.with-sub {
         --fp-clock-fit: 46cqh;
       }
       ha-card.with-label {
         --fp-clock-fit: 46cqh;
       }
-      ha-card.with-label.with-date {
+      ha-card.with-label.with-sub {
         --fp-clock-fit: 34cqh;
       }
       .time {
@@ -129,11 +160,36 @@ export class FaceplateClockCard extends FaceplateCard<FaceplateClockConfig> {
         opacity: 0.75;
         margin-left: 4px;
       }
+      /* Date and weather read as one secondary line under the figures. */
+      .sub {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 2px;
+        min-width: 0;
+      }
       .date {
         font-size: 13px;
         color: var(--secondary-text-color);
-        margin-top: 2px;
         white-space: nowrap;
+      }
+      .weather {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        white-space: nowrap;
+      }
+      .weather ha-icon {
+        --mdc-icon-size: 18px;
+      }
+      .temps {
+        font-size: 13px;
+        font-variant-numeric: tabular-nums;
+      }
+      /* The low is the quieter half of the pair, as on the forecast strip. */
+      .temp-low {
+        color: var(--secondary-text-color);
       }
       .label {
         font-size: 12px;
@@ -155,8 +211,15 @@ export class FaceplateClockCard extends FaceplateCard<FaceplateClockConfig> {
         .lcd {
           --faceplate-clock-size: 26px;
         }
-        .date {
+        .date,
+        .temps {
           font-size: 11px;
+        }
+        .sub {
+          gap: 5px;
+        }
+        .weather ha-icon {
+          --mdc-icon-size: 15px;
         }
       }
     `,
@@ -190,12 +253,14 @@ export class FaceplateClockCard extends FaceplateCard<FaceplateClockConfig> {
         }).format(this._now)
       : undefined;
 
+    const weather = this._weather();
+
     this.dataset.size = config.clock_size ?? "medium";
 
     return html`
       <ha-card
         class=${classMap({
-          "with-date": Boolean(date),
+          "with-sub": Boolean(date || weather),
           "with-label": Boolean(config.name),
         })}
       >
@@ -208,10 +273,47 @@ export class FaceplateClockCard extends FaceplateCard<FaceplateClockConfig> {
               ? html`<span class="meridiem">${meridiem}</span>`
               : nothing}</span
           >
-          ${date ? html`<span class="date">${date}</span>` : nothing}
+          ${date || weather
+            ? html`<div class="sub">
+                ${date ? html`<span class="date">${date}</span>` : nothing}
+                ${weather ?? nothing}
+              </div>`
+            : nothing}
         </div>
       </ha-card>
     `;
+  }
+
+  /**
+   * Today's outlook beside the date: the condition icon and the day's high
+   * and low, in the same pairing the weather card's forecast strip uses.
+   *
+   * The high and low come from the first daily forecast slot rather than the
+   * entity's own `temperature`, which is the reading right now — a clock
+   * showing "31°" at breakfast and "26°" at bedtime is reporting the weather
+   * changing, not the day's range.
+   */
+  private _weather() {
+    if (!this._weatherWanted) return undefined;
+    const stateObj = this.hass?.states[this._config!.weather_entity!];
+    if (!stateObj) return undefined;
+
+    const today = this._forecast[0];
+    const condition = today?.condition ?? stateObj.state;
+    const high = today?.temperature;
+    const low = today?.templow;
+
+    return html`<span class="weather">
+      <ha-icon icon=${weatherIcon(condition)}></ha-icon>
+      <span class="temps">
+        ${high === undefined ? "--" : formatNumber(this.hass, high, 0)}°${low ===
+        undefined
+          ? nothing
+          : html`<span class="temp-low"
+              >/${formatNumber(this.hass, low, 0)}°</span
+            >`}
+      </span>
+    </span>`;
   }
 }
 
@@ -222,6 +324,7 @@ export class FaceplateClockCardEditor extends FaceplateEditor<FaceplateClockConf
     time_format: "auto",
     show_seconds: false,
     show_date: true,
+    show_weather: true,
   };
 
   protected labels = {
@@ -231,12 +334,16 @@ export class FaceplateClockCardEditor extends FaceplateEditor<FaceplateClockConf
     show_seconds: "Show seconds",
     show_date: "Show date",
     time_zone: "Time zone",
+    weather_entity: "Weather entity (optional)",
+    show_weather: "Show weather",
   };
 
   protected helpers = {
     time_format: "Auto follows your Home Assistant profile setting",
     show_seconds: "Ticks every second instead of every minute",
     time_zone: "IANA name, e.g. Asia/Hong_Kong. Empty uses the panel's own zone",
+    weather_entity:
+      "Puts today's condition icon and high/low beside the date",
   };
 
   protected schema(): HaFormSchema[] {
@@ -277,6 +384,11 @@ export class FaceplateClockCardEditor extends FaceplateEditor<FaceplateClockConf
         ],
       },
       { name: "time_zone", selector: { text: {} } },
+      {
+        name: "weather_entity",
+        selector: { entity: { domain: "weather" } },
+      },
+      { name: "show_weather", selector: { boolean: {} } },
     ];
   }
 }

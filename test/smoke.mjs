@@ -290,8 +290,78 @@ assert(
   );
 }
 
+/* ---------------------------------------------------- clock with weather */
+{
+  // Two cards now subscribe with identical messages, so each block has to
+  // look only at the subscriptions its own mount opened.
+  const from = subscriptions.length;
+  const { card, root } = await mount("faceplate-clock-card", {
+    type: "custom:faceplate-clock-card",
+    show_date: true,
+    weather_entity: "weather.home",
+  });
+
+  const sub = subscriptions.slice(from).find(
+    (s) =>
+      s.message.type === "weather/subscribe_forecast" &&
+      s.message.entity_id === "weather.home" &&
+      s.message.forecast_type === "daily"
+  );
+  assert(sub !== undefined, "clock: subscribes to the daily forecast");
+
+  sub.callback({
+    forecast: [
+      { datetime: "2026-08-19T00:00:00+08:00", condition: "rainy", temperature: 31, templow: 26 },
+      { datetime: "2026-08-20T00:00:00+08:00", condition: "sunny", temperature: 33, templow: 27 },
+    ],
+  });
+  await card.updateComplete;
+
+  // Today's high and low, not tomorrow's and not the reading right now (29).
+  assert(
+    text(root).includes("31°/26°"),
+    `clock: shows today's high and low (got "${text(root)}")`
+  );
+  assert(
+    root.querySelector(".weather ha-icon")?.getAttribute("icon") ===
+      "mdi:weather-rainy",
+    "clock: the icon follows today's forecast condition"
+  );
+  assert(
+    root.querySelector(".sub .date") !== null &&
+      root.querySelector(".sub .weather") !== null,
+    "clock: date and weather share one line under the figures"
+  );
+}
+
+/* --------------------------------------- clock with weather switched off */
+{
+  const { root } = await mount("faceplate-clock-card", {
+    type: "custom:faceplate-clock-card",
+    weather_entity: "weather.home",
+    show_weather: false,
+  });
+  assert(
+    root.querySelector(".weather") === null,
+    "clock: show_weather false drops the readout"
+  );
+}
+
+/* -------------------------------- clock with a weather entity that is gone */
+{
+  const { root } = await mount("faceplate-clock-card", {
+    type: "custom:faceplate-clock-card",
+    weather_entity: "weather.does_not_exist",
+  });
+  assert(
+    /\d{1,2}:\d{2}/.test(text(root)) && root.querySelector(".weather") === null,
+    "clock: a missing weather entity leaves the clock itself working"
+  );
+}
+
 /* --------------------------------------------------------------- weather */
 {
+  const from = subscriptions.length;
   const { card, root } = await mount("faceplate-weather-card", {
     type: "custom:faceplate-weather-card",
     entity: "weather.home",
@@ -300,9 +370,9 @@ assert(
   assert(text(root).includes("29"), "weather: shows the current temperature");
   assert(text(root).includes("74%"), "weather: shows the humidity");
 
-  const sub = subscriptions.find(
-    (s) => s.message.type === "weather/subscribe_forecast"
-  );
+  const sub = subscriptions
+    .slice(from)
+    .find((s) => s.message.type === "weather/subscribe_forecast");
   assert(sub !== undefined, "weather: subscribes to the forecast");
 
   sub.callback({

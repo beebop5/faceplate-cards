@@ -289,10 +289,10 @@ const SCENES = [
     sections: [
       [
         {
-          type: "custom:faceplate-banner-card",
-          content: "{{ now().strftime('%H:%M') }}",
-          text_size: "large",
-          text_only: true,
+          type: "custom:faceplate-clock-card",
+          clock_size: "small",
+          time_format: "24",
+          weather_entity: "weather.home",
           grid_options: { columns: 12, rows: 1 },
         },
         climate({

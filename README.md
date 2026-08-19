@@ -120,6 +120,21 @@ follow every intermediate value over the network stutters.
 | `show_seconds` | boolean | `false` | Ticks every second instead of every minute |
 | `show_date` | boolean | `true` | |
 | `time_zone` | string | — | IANA name, e.g. `Asia/Hong_Kong` |
+| `weather_entity` | string | — | A `weather` entity. Puts today's condition icon and high/low beside the date |
+| `show_weather` | boolean | `true` | Only has an effect once `weather_entity` is set |
+
+The high and low come from the first daily forecast slot rather than the
+entity's `temperature`, which is the reading right now — a clock showing 31°
+at breakfast and 26° at bedtime is reporting the weather changing, not the
+day's range. This is the one-line form of the weather card's forecast strip,
+for a panel with no room for both a clock and a forecast.
+
+```yaml
+type: custom:faceplate-clock-card
+clock_size: small
+time_format: "24"
+weather_entity: weather.home
+```
 
 ### Weather
 
