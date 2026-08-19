@@ -49,8 +49,11 @@ export class FaceplateLightCard extends FaceplateCard<FaceplateLightConfig> {
 
   public getGridOptions() {
     // Four rows: the readout, two sliders and the button row do not fit in
-    // three, and a slider pushed out of its tile is silently unusable.
-    const rows = this._config?.show_color_temp_control ? 4 : 3;
+    // three, and a slider pushed out of its tile is silently unusable. Hiding
+    // the readout gives one back — the sliders already show their own values,
+    // so on a crowded panel it is duplicated height rather than information.
+    let rows = this._config?.show_color_temp_control ? 4 : 3;
+    if (this._config?.show_state === false) rows -= 1;
     return { columns: 6, rows, min_columns: 3, min_rows: 2 };
   }
 
@@ -179,17 +182,19 @@ export class FaceplateLightCard extends FaceplateCard<FaceplateLightConfig> {
               <ha-icon class="bulb" icon=${icon}></ha-icon>
             </span>
           </div>
-          <div class="lcd-center">
-            ${unavailable
-              ? html`<span class="off-label">Unavailable</span>`
-              : this._on
-                ? brightness === undefined
-                  ? html`<span class="readout">On</span>`
-                  : html`<span class="readout"
-                      >${brightness}<span class="unit">%</span></span
-                    >`
-                : html`<span class="off-label">Off</span>`}
-          </div>
+          ${this._show("show_state")
+            ? html`<div class="lcd-center">
+                ${unavailable
+                  ? html`<span class="off-label">Unavailable</span>`
+                  : this._on
+                    ? brightness === undefined
+                      ? html`<span class="readout">On</span>`
+                      : html`<span class="readout"
+                          >${brightness}<span class="unit">%</span></span
+                        >`
+                    : html`<span class="off-label">Off</span>`}
+              </div>`
+            : nothing}
         </div>
 
         ${showBrightness || showColorTemp
