@@ -313,6 +313,93 @@ assert(
   assert(sent(80) === 48, `light: 80% scales to 48% output (got ${sent(80)})`);
 }
 
+/* ------------------------------------------- light with a floor and ceiling */
+{
+  const { root } = await mount("faceplate-light-card", {
+    type: "custom:faceplate-light-card",
+    entity: "light.kitchen",
+    min_brightness: 20,
+    max_brightness: 60,
+  });
+
+  // 128/255 is ~50% output, which is three quarters of the way from 20 to 60.
+  assert(
+    text(root).includes("75"),
+    `light: the readout places the light within the span (got "${text(root)}")`
+  );
+
+  const slider = root.querySelector("faceplate-slider");
+  const sent = (value) => {
+    calls.length = 0;
+    slider.dispatchEvent(
+      new dom.window.CustomEvent("slider-change", {
+        detail: { value },
+        bubbles: true,
+        composed: true,
+      })
+    );
+    return calls.find(([d, s]) => d === "light" && s === "turn_on")?.[2]
+      ?.brightness_pct;
+  };
+
+  assert(sent(0) === 20, `light: the card's 0% is the floor, not off (got ${sent(0)})`);
+  assert(sent(100) === 60, `light: the card's 100% is the ceiling (got ${sent(100)})`);
+  assert(sent(50) === 40, `light: the card's 50% is mid-span (got ${sent(50)})`);
+}
+
+/* --------------------------------------------- light with an unusable span */
+{
+  const { root } = await mount("faceplate-light-card", {
+    type: "custom:faceplate-light-card",
+    entity: "light.kitchen",
+    min_brightness: 80,
+    max_brightness: 20,
+  });
+  // Inverted: ignored rather than obeyed, so the card still reads plain output.
+  assert(
+    text(root).includes("50"),
+    `light: an inverted brightness span falls back to 0-100 (got "${text(root)}")`
+  );
+}
+
+/* ------------------------------------------------ light with a Kelvin span */
+{
+  const { root } = await mount("faceplate-light-card", {
+    type: "custom:faceplate-light-card",
+    entity: "light.kitchen",
+    show_color_temp_control: true,
+    min_color_temp_kelvin: 2500,
+    max_color_temp_kelvin: 4000,
+  });
+
+  const warmth = root.querySelectorAll("faceplate-slider")[1];
+  assert(
+    warmth.min === 2500 && warmth.max === 4000,
+    `light: the warmth slider takes the configured span (got ${warmth.min}-${warmth.max})`
+  );
+  // The fixture sits at 3000K, inside the span, so it is left alone.
+  assert(warmth.value === 3000, `light: warmth value inside the span is kept (got ${warmth.value})`);
+}
+
+/* ------------------------- Kelvin span wider than the light can actually do */
+{
+  const { root } = await mount("faceplate-light-card", {
+    type: "custom:faceplate-light-card",
+    entity: "light.kitchen",
+    show_color_temp_control: true,
+    min_color_temp_kelvin: 1000,
+    max_color_temp_kelvin: 9000,
+  });
+
+  const warmth = root.querySelectorAll("faceplate-slider")[1];
+  // The fixture reports 2000-6500; asking for wider must not offer what the
+  // bulb cannot reach.
+  assert(
+    warmth.min === 2000 && warmth.max === 6500,
+    `light: the span is held inside the light's own range (got ${warmth.min}-${warmth.max})`
+  );
+}
+
 /* ------------------------------- light driven past its ceiling elsewhere */
 {
   const light = hass.states["light.kitchen"];

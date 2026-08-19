@@ -107,17 +107,36 @@ pressed, which is what a one-shot entity means by "on".
 | `show_color_temp_control` | boolean | `false` | Only appears on lights supporting colour temperature |
 | `use_light_color` | boolean | `true` | Tint the readout and slider with the light's own colour |
 | `show_controls` | boolean | `true` | `false` leaves the readout and sliders |
-| `max_brightness` | number | `100` | Percentage of full output the card treats as its own 100% |
+| `min_brightness` | number | `0` | Percentage of output the card's 0% sits at |
+| `max_brightness` | number | `100` | Percentage of output the card's 100% sits at |
+| `min_color_temp_kelvin` | number | entity | Warm end of the warmth slider |
+| `max_color_temp_kelvin` | number | entity | Cool end of the warmth slider |
 
-`max_brightness` rescales the card's range onto the ceiling rather than
-clipping at it: at `60`, the card's 100% is 60% output and its 50% is 30%, so
-the slider stays useful over its whole travel. Clipping would leave the top of
-the slider dead, every position in it meaning the same brightness.
+The brightness pair gives the card's own 0-100% a span of the light's real
+output, rescaled onto it rather than clipped at its ends: at `max_brightness:
+60`, the card's 100% is 60% output and its 50% is 30%. At `min_brightness: 10`
+the card's 0% is 10% output, which is how you keep a lamp off a floor it looks
+bad below. Clipping instead would leave part of the slider dead, every position
+in it meaning the same brightness.
 
-It governs this card only — it is not a cap on the light. Anything else
-addressing the entity still reaches full output, and if something does, the
-card reads 100% rather than climbing past it. A ceiling that has to hold
-everywhere belongs in Home Assistant, not in a dashboard card.
+The Kelvin pair narrows the warmth slider the same way, and both ends are held
+inside what the light reports it supports — a slider offering a temperature the
+bulb cannot reach just sends a value the integration rounds away. A span that
+is inverted or empty is ignored rather than obeyed.
+
+These govern the card, not the light. Anything else addressing the entity still
+reaches full output, and if something does, the card reads 100% rather than
+climbing past it. A ceiling that has to hold everywhere belongs in Home
+Assistant, not in a dashboard card.
+
+```yaml
+type: custom:faceplate-light-card
+entity: light.living_room_skylines
+show_color_temp_control: true
+max_brightness: 60
+min_color_temp_kelvin: 2200
+max_color_temp_kelvin: 4000
+```
 
 Sliders report on release rather than during the drag: a dimmer asked to
 follow every intermediate value over the network stutters.
