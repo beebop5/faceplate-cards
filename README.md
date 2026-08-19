@@ -44,7 +44,7 @@ One resource registers all seven cards.
 ### HACS (custom repository)
 
 1. HACS → three-dot menu → *Custom repositories*
-2. Add `https://github.com/beebop5/faceplate-cards` with type **Dashboard**
+2. Add `https://github.com/bl0ckstat/faceplate-cards` with type **Dashboard**
 3. Install *Faceplate Cards* — HACS registers the resource for you
 
 Not submitted to the HACS default store.

@@ -20,7 +20,7 @@ registerCard({
     "Air-conditioner remote with temperature, fan and swing controls, built for small wall panels",
 });
 
-const VERSION = "0.1.15";
+const VERSION = "0.1.16";
 // eslint-disable-next-line no-console
 console.info(
   `%c FACEPLATE-CARDS %c ${VERSION} `,

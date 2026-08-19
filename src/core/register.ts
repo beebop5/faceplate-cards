@@ -1,4 +1,4 @@
-export const REPO_URL = "https://github.com/beebop5/faceplate-cards";
+export const REPO_URL = "https://github.com/bl0ckstat/faceplate-cards";
 
 /** Add a card to the dashboard card picker. */
 export function registerCard(entry: {
