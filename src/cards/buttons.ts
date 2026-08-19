@@ -60,7 +60,42 @@ export class FaceplateButtonsCard extends FaceplateCard<FaceplateButtonsConfig> 
     super.setConfig(config);
   }
 
-  private _press(spec: FaceplateButtonSpec): void {
+  private _timers = new Map<number, number>();
+  private _held = new Set<number>();
+
+  public disconnectedCallback(): void {
+    super.disconnectedCallback();
+    for (const t of this._timers.values()) window.clearTimeout(t);
+    this._timers.clear();
+  }
+
+  /** Hold, so a row can carry the pairs a single button carries — tap the fan
+   *  light on, hold it off — instead of forcing those onto separate cards. */
+  private _down(index: number, spec: FaceplateButtonSpec): void {
+    if (!spec.hold_action) return;
+    this._held.delete(index);
+    this._timers.set(
+      index,
+      window.setTimeout(() => {
+        this._held.add(index);
+        if (this.hass) {
+          handleAction(this, this.hass, { ...spec, type: CARD }, "hold");
+        }
+      }, 500)
+    );
+  }
+
+  private _up(index: number): void {
+    const timer = this._timers.get(index);
+    if (timer !== undefined) {
+      window.clearTimeout(timer);
+      this._timers.delete(index);
+    }
+  }
+
+  private _press(index: number, spec: FaceplateButtonSpec): void {
+    // A hold has already fired; swallow the click that trails it.
+    if (this._held.delete(index)) return;
     // handleAction wants a card config; a button spec is the same shape minus
     // the type discriminator, which it never reads.
     if (this.hass) {
@@ -147,13 +182,18 @@ export class FaceplateButtonsCard extends FaceplateCard<FaceplateButtonsConfig> 
     return html`
       <ha-card>
         <div class="row" style="--fp-count: ${buttons.length}">
-          ${buttons.map((spec) => {
+          ${buttons.map((spec, i) => {
             const on = this._isOn(spec);
             return html`<button
               class=${classMap({ ctl: true, on, off: Boolean(spec.entity) && !on })}
               title=${spec.name ?? ""}
               aria-label=${spec.name ?? spec.icon ?? "button"}
-              @click=${() => this._press(spec)}
+              @click=${() => this._press(i, spec)}
+              @pointerdown=${() => this._down(i, spec)}
+              @pointerup=${() => this._up(i)}
+              @pointerleave=${() => this._up(i)}
+              @pointercancel=${() => this._up(i)}
+              @contextmenu=${(e: Event) => e.preventDefault()}
             >
               ${spec.icon_badge
                 ? html`<span class="glyph">
