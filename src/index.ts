@@ -10,8 +10,8 @@ import "./cards/clock";
 import "./cards/weather";
 import "./cards/banner";
 
-// The sibling cards register themselves as they load; the climate card keeps
-// its own module layout from the AC Remote Card it grew out of.
+// The sibling cards register themselves as they load; the climate card is
+// large enough to keep its own module layout under cards/climate/.
 registerCard({
   type: CLIMATE_CARD,
   name: "Faceplate Climate",
