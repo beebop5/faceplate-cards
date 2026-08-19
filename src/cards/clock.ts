@@ -1,5 +1,6 @@
 import { html, css, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
+import { classMap } from "lit/directives/class-map.js";
 import { FaceplateCard } from "../core/base-card";
 import { FaceplateEditor, type HaFormSchema } from "../core/base-editor";
 import { registerCard } from "../core/register";
@@ -89,11 +90,35 @@ export class FaceplateClockCard extends FaceplateCard<FaceplateClockConfig> {
   static styles = [
     ...faceplateStyles,
     css`
+      /* A size container so the figures can be capped against the tile's
+         height. Without it a medium clock with seconds and a date overflows a
+         two-row tile and the date is sliced off. The min-height floor keeps it
+         legible if this lands in a view that gives the card no definite
+         height, where a size container would otherwise collapse. */
+      ha-card {
+        container-type: size;
+        min-height: 40px;
+      }
       .lcd {
         gap: 0;
+        min-height: 0;
+        overflow: hidden;
+      }
+      /* Each line below the time takes its share out of the figures. */
+      ha-card.with-date {
+        --fp-clock-fit: 46cqh;
+      }
+      ha-card.with-label {
+        --fp-clock-fit: 46cqh;
+      }
+      ha-card.with-label.with-date {
+        --fp-clock-fit: 34cqh;
       }
       .time {
-        font-size: var(--faceplate-clock-size, 44px);
+        font-size: min(
+          var(--faceplate-clock-size, 44px),
+          var(--fp-clock-fit, 66cqh)
+        );
         font-weight: 300;
         line-height: 1.05;
         font-variant-numeric: tabular-nums;
@@ -168,7 +193,12 @@ export class FaceplateClockCard extends FaceplateCard<FaceplateClockConfig> {
     this.dataset.size = config.clock_size ?? "medium";
 
     return html`
-      <ha-card>
+      <ha-card
+        class=${classMap({
+          "with-date": Boolean(date),
+          "with-label": Boolean(config.name),
+        })}
+      >
         <div class="lcd">
           ${config.name
             ? html`<span class="label">${config.name}</span>`
