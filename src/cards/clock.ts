@@ -228,10 +228,12 @@ export class FaceplateClockCard extends FaceplateCard<FaceplateClockConfig> {
          the recessed panel's, around a single line of text. Tightening both
          lets the figures grow into the space instead of it being border. */
       ha-card.row {
-        --faceplate-padding: 4px;
+        --faceplate-padding: 0px;
       }
       ha-card.row .lcd {
-        padding: 2px 12px;
+        padding: 2px 14px;
+        border-radius: var(--faceplate-radius);
+        align-self: stretch;
       }
       /* Secondary text is sized against the figures, not fixed at 13px — a
          date a third the height of the time beside it reads as an accident. */

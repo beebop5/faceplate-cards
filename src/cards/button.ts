@@ -96,9 +96,12 @@ export class FaceplateButtonCard extends FaceplateCard<FaceplateButtonConfig> {
       }
       .glyph-badge {
         position: absolute;
-        right: -0.28em;
-        bottom: -0.18em;
-        font-size: 0.5em;
+        right: -0.3em;
+        bottom: -0.14em;
+        /* Material draws its own fan numerals at roughly this weight relative
+           to the glyph; smaller than this and the digit stops being readable
+           across a room, which is the whole point of numbering them. */
+        font-size: 0.58em;
         font-weight: 700;
         line-height: 1;
         font-variant-numeric: tabular-nums;

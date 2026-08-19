@@ -22,14 +22,22 @@ export interface FaceplateLightConfig extends FaceplateBaseConfig {
   use_light_color?: boolean;
   show_controls?: boolean;
   /**
-   * Treat this percentage of the light's output as the card's 100%.
+   * The span of the light's output, as percentages, that the card's own 0-100%
+   * covers. `max_brightness: 60` makes the card's full scale 60% output.
    *
-   * The card's range is rescaled onto it rather than clipped at it, so the
-   * slider stays useful over its whole travel — a cap that clamped instead
-   * would leave the top of the slider dead, every position in it meaning the
-   * same brightness.
+   * The card's range is rescaled onto the span rather than clipped at its ends,
+   * so the slider stays useful over its whole travel — clipping would leave
+   * part of the slider dead, every position in it meaning the same brightness.
    */
+  min_brightness?: number;
   max_brightness?: number;
+  /**
+   * Narrow the warmth slider to this Kelvin span. Both are clamped to what the
+   * light actually supports: a slider offering a temperature the bulb cannot
+   * reach just sends a value the integration silently rounds away.
+   */
+  min_color_temp_kelvin?: number;
+  max_color_temp_kelvin?: number;
 }
 
 /** Kelvin values the mired-era `color_temp` attribute maps onto, used only
@@ -70,22 +78,45 @@ export class FaceplateLightCard extends FaceplateCard<FaceplateLightConfig> {
     return this._stateObj?.state === "on";
   }
 
-  /** The ceiling as a percentage of the light's full output; 100 when unset. */
-  private get _maxBrightness(): number {
-    const max = this._config?.max_brightness;
-    return typeof max === "number" && max > 0 && max <= 100 ? max : 100;
+  /** The span of real output the card's 0-100% covers, as percentages.
+   *
+   *  A span that is inverted or empty is ignored rather than obeyed: it would
+   *  divide by zero below, and a card that renders nothing usable is a worse
+   *  answer to a typo than a card that ignores it. */
+  private get _brightnessRange(): { min: number; max: number } {
+    const clamp = (v: unknown) =>
+      typeof v === "number" && v >= 0 && v <= 100 ? v : undefined;
+    const min = clamp(this._config?.min_brightness) ?? 0;
+    const max = clamp(this._config?.max_brightness) ?? 100;
+    return max > min ? { min, max } : { min: 0, max: 100 };
   }
 
-  /** What the card shows: the light's output as a share of the ceiling.
+  /** What the card shows: where the light sits within the configured span.
    *
-   *  Something outside the card can still drive the light past the ceiling —
-   *  an automation, the Home Assistant app — so this is capped at 100 rather
-   *  than allowed to read above full. */
+   *  Something outside the card can still drive the light past either end —
+   *  an automation, the Home Assistant app — so this is held inside 0-100
+   *  rather than allowed to read past full or below empty. */
   private get _brightness(): number | undefined {
     const raw = this._stateObj?.attributes.brightness;
     if (typeof raw !== "number") return undefined;
+    const { min, max } = this._brightnessRange;
     const actual = (raw / 255) * 100;
-    return Math.min(100, Math.round((actual / this._maxBrightness) * 100));
+    return Math.min(100, Math.max(0, Math.round(((actual - min) / (max - min)) * 100)));
+  }
+
+  /** The warmth slider's ends: the config's span, held inside what the light
+   *  reports it can actually do. */
+  private get _kelvinRange(): { min: number; max: number } {
+    const entityMin =
+      this._stateObj?.attributes.min_color_temp_kelvin ?? DEFAULT_MIN_KELVIN;
+    const entityMax =
+      this._stateObj?.attributes.max_color_temp_kelvin ?? DEFAULT_MAX_KELVIN;
+    const wantMin = this._config?.min_color_temp_kelvin;
+    const wantMax = this._config?.max_color_temp_kelvin;
+
+    const min = typeof wantMin === "number" ? Math.max(entityMin, wantMin) : entityMin;
+    const max = typeof wantMax === "number" ? Math.min(entityMax, wantMax) : entityMax;
+    return max > min ? { min, max } : { min: entityMin, max: entityMax };
   }
 
   private get _supportsBrightness(): boolean {
@@ -117,9 +148,10 @@ export class FaceplateLightCard extends FaceplateCard<FaceplateLightConfig> {
   };
 
   private _setBrightness = (ev: CustomEvent<{ value: number }>): void => {
+    const { min, max } = this._brightnessRange;
     this.hass!.callService("light", "turn_on", {
       entity_id: this._config!.entity,
-      brightness_pct: (ev.detail.value * this._maxBrightness) / 100,
+      brightness_pct: min + ((max - min) * ev.detail.value) / 100,
     });
   };
 
@@ -209,10 +241,15 @@ export class FaceplateLightCard extends FaceplateCard<FaceplateLightConfig> {
       this._supportsColorTemp &&
       !unavailable;
 
-    const minKelvin =
-      stateObj.attributes.min_color_temp_kelvin ?? DEFAULT_MIN_KELVIN;
-    const maxKelvin =
-      stateObj.attributes.max_color_temp_kelvin ?? DEFAULT_MAX_KELVIN;
+    const { min: minKelvin, max: maxKelvin } = this._kelvinRange;
+
+    // Held inside the slider's own ends: something else may have set a
+    // temperature the narrowed range excludes, and a handle parked off the
+    // track reads as a broken control.
+    const kelvinValue = Math.min(
+      maxKelvin,
+      Math.max(minKelvin, stateObj.attributes.color_temp_kelvin ?? minKelvin)
+    );
 
     return html`
       <ha-card>
@@ -269,7 +306,7 @@ export class FaceplateLightCard extends FaceplateCard<FaceplateLightConfig> {
                     .min=${minKelvin}
                     .max=${maxKelvin}
                     .step=${50}
-                    .value=${stateObj.attributes.color_temp_kelvin ?? minKelvin}
+                    .value=${kelvinValue}
                     .disabled=${!this._on}
                     .gradient=${`linear-gradient(to right, ${kelvinToCss(
                       minKelvin
@@ -349,14 +386,19 @@ export class FaceplateLightCardEditor extends FaceplateEditor<FaceplateLightConf
     show_color_temp_control: "Warmth slider",
     use_light_color: "Tint with the light's colour",
     show_controls: "Show buttons",
-    max_brightness: "Card's 100% (% of full output)",
+    min_brightness: "Brightness floor (%)",
+    max_brightness: "Brightness ceiling (%)",
+    min_color_temp_kelvin: "Warmest (K)",
+    max_color_temp_kelvin: "Coolest (K)",
   };
 
   protected helpers = {
     show_color_temp_control: "Only appears on lights that support colour temperature",
     show_controls: "Off leaves just the readout and sliders",
     max_brightness:
-      "60 makes the card's 100% equal 60% output, rescaling the whole slider rather than clipping its top",
+      "The span the card's own 0-100% covers. A ceiling of 60 makes the card's 100% equal 60% output, rescaling the whole slider rather than clipping its top",
+    max_color_temp_kelvin:
+      "Narrows the warmth slider. Both ends are held inside what the light actually supports",
   };
 
   protected schema(): HaFormSchema[] {
@@ -379,8 +421,26 @@ export class FaceplateLightCardEditor extends FaceplateEditor<FaceplateLightConf
         ],
       },
       {
-        name: "max_brightness",
-        selector: { number: { min: 1, max: 100, step: 1, mode: "slider" } },
+        type: "grid",
+        name: "",
+        schema: [
+          {
+            name: "min_brightness",
+            selector: { number: { min: 0, max: 100, step: 1, mode: "box" } },
+          },
+          {
+            name: "max_brightness",
+            selector: { number: { min: 0, max: 100, step: 1, mode: "box" } },
+          },
+          {
+            name: "min_color_temp_kelvin",
+            selector: { number: { min: 1000, max: 10000, step: 50, mode: "box" } },
+          },
+          {
+            name: "max_color_temp_kelvin",
+            selector: { number: { min: 1000, max: 10000, step: 50, mode: "box" } },
+          },
+        ],
       },
     ];
   }
