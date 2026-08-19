@@ -2,14 +2,19 @@
 
 A suite of Home Assistant dashboard cards styled like the faceplate of a
 physical appliance: an inset "LCD" readout with round tactile buttons beneath
-it. Built for small wall panels such as the Sonoff NSPanel Pro, where a whole
-dashboard has to fit on one screen and every control has to survive a thumb.
+it.
 
-The suite grew out of [ac-remote-card](https://github.com/beebop5/ac-remote-card),
-whose design language it generalises: a recessed panel carrying the numbers, a
-dashed rule under a row of secondary readouts, circular controls that stay
-thumb-sized as the tile shrinks, and popups that take over the screen rather
-than squeezing into a card.
+Every card is tuned for small screen real estate. A wall panel — a Sonoff
+NSPanel Pro is 480×480 — gives a dashboard no room to spare, so these are built
+to be compact without becoming fiddly: a whole dashboard fits on one screen
+without scrolling, and every control stays big enough to hit with a thumb.
+Where something has to give, the readouts shed detail before the controls
+shrink, and anything needing more room takes over the screen rather than
+squeezing into a tile.
+
+One design language runs throughout: a recessed panel carrying the numbers, a
+dashed rule under a row of secondary readouts, and circular controls that hold
+their size as the tile gets smaller.
 
 ## The cards
 
@@ -53,8 +58,9 @@ Assistant's own shapes, including both `perform-action` and the older
 
 ### Climate
 
-A drop-in for `ac-remote-card` — the same option names, so an existing card
-converts by changing `type` alone.
+An air-conditioner remote: setpoint, mode, fan and swing, with presets and any
+extra entities behind a single full-screen configuration sheet. `layout: row`
+reduces it to one line for a dashboard that has to fit several.
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
