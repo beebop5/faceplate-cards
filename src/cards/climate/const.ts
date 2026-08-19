@@ -98,3 +98,13 @@ export function prettify(value: string): string {
     .replace(/[_-]+/g, " ")
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
+
+/**
+ * The status strip pairs each icon with a word. "Automatic" is the one value
+ * the icon already states on its own, and it is also much the longest — it
+ * pushed the swing and preset segments out of alignment on a 480px panel.
+ * The icon carries it.
+ */
+export function statusLabel(value: string): string {
+  return /^auto/i.test(value.replace(/[_\s-]+/g, "")) ? "" : prettify(value);
+}

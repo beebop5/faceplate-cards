@@ -111,9 +111,15 @@ export class FaceplateButtonsCard extends FaceplateCard<FaceplateButtonsConfig> 
         height: auto;
         max-width: none;
         aspect-ratio: 1;
+        /* The glyph is sized off the button, not the card. Off the card it
+           tracked the card's short side, so a one-row row of seven buttons
+           bottomed out on the 16px floor and drew postage stamps inside
+           36px squares. The explicit width plus aspect-ratio gives this a
+           definite size in both axes, which is what a size container needs. */
+        container-type: size;
       }
       .ctl ha-icon {
-        --mdc-icon-size: clamp(16px, 34cqmin, 34px);
+        --mdc-icon-size: clamp(14px, 55cqmin, 34px);
       }
       .glyph {
         position: relative;
@@ -125,7 +131,7 @@ export class FaceplateButtonsCard extends FaceplateCard<FaceplateButtonsConfig> 
         position: absolute;
         right: -14%;
         bottom: -6%;
-        font-size: clamp(9px, 17cqmin, 17px);
+        font-size: clamp(9px, 28cqmin, 17px);
         font-weight: 700;
         line-height: 1;
         font-variant-numeric: tabular-nums;

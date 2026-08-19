@@ -13,6 +13,7 @@ import {
   fanSpeedLabel,
   swingIcon,
   prettify,
+  statusLabel,
 } from "./const";
 import { faceplateStyles } from "../../core/styles";
 import type {
@@ -452,7 +453,7 @@ export class FaceplateClimateCard extends LitElement {
                   >
                     <ha-icon icon=${s.segmentIcon}></ha-icon>
                     <span
-                      >${inactive ? "—" : prettify(s.source.current ?? "—")}</span
+                      >${inactive ? "—" : statusLabel(s.source.current ?? "—")}</span
                     >
                   </button>`
                 )}
@@ -618,7 +619,7 @@ export class FaceplateClimateCard extends LitElement {
               ${fanSections.map(
                 (s) => html`<span class="segment">
                   <ha-icon icon=${s.segmentIcon}></ha-icon>
-                  <span>${inactive ? "—" : prettify(s.source.current ?? "—")}</span>
+                  <span>${inactive ? "—" : statusLabel(s.source.current ?? "—")}</span>
                 </span>`
               )}
             </div>`
