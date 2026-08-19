@@ -111,6 +111,28 @@ export class FaceplateLightCard extends FaceplateCard<FaceplateLightConfig> {
   static styles = [
     ...faceplateStyles,
     css`
+      /* The badge is a control, so it has to look like one: a round target
+         big enough for a thumb, sitting in the title row. Plain rgba rather
+         than color-mix — the Gen1 panels run a Chromium that predates it and
+         would drop the declaration, leaving an invisible button. */
+      .badge {
+        width: 34px;
+        height: 34px;
+        justify-content: center;
+        flex: none;
+        border-radius: 50%;
+        background: rgba(127, 127, 127, 0.16);
+        transition: background 0.15s;
+      }
+      .badge.on {
+        background: rgba(255, 255, 255, 0.13);
+      }
+      .badge:hover:not(:disabled) {
+        background: rgba(127, 127, 127, 0.3);
+      }
+      .badge ha-icon {
+        --mdc-icon-size: 20px;
+      }
       .sliders {
         display: flex;
         flex-direction: column;
@@ -175,12 +197,19 @@ export class FaceplateLightCard extends FaceplateCard<FaceplateLightConfig> {
         <div class=${classMap({ lcd: true, off: !this._on })}>
           <div class="lcd-top">
             <span class="name" title=${name}>${name}</span>
-            <span
-              class="badge"
+            <!-- The badge toggles rather than just reporting. On a tile with
+                 the button row hidden it is the only control left, and a lit
+                 bulb that cannot be pressed is a confusing thing to show. -->
+            <button
+              class=${classMap({ badge: true, on: this._on })}
               style=${styleMap(color ? { color } : {})}
+              title=${this._on ? "Turn off" : "Turn on"}
+              aria-label=${this._on ? "Turn off" : "Turn on"}
+              .disabled=${unavailable}
+              @click=${this._toggle}
             >
               <ha-icon class="bulb" icon=${icon}></ha-icon>
-            </span>
+            </button>
           </div>
           ${this._show("show_state")
             ? html`<div class="lcd-center">

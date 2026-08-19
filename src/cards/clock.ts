@@ -224,17 +224,29 @@ export class FaceplateClockCard extends FaceplateCard<FaceplateClockConfig> {
         gap: 8px;
         flex: none;
       }
-      /* Secondary text scales with the figures rather than staying at 13px,
-         which looks stranded next to a clock three times its size. */
+      /* A header bar is mostly frame otherwise: the card's own padding, then
+         the recessed panel's, around a single line of text. Tightening both
+         lets the figures grow into the space instead of it being border. */
+      ha-card.row {
+        --faceplate-padding: 4px;
+      }
+      ha-card.row .lcd {
+        padding: 2px 12px;
+      }
+      /* Secondary text is sized against the figures, not fixed at 13px — a
+         date a third the height of the time beside it reads as an accident. */
       ha-card.row .date,
       ha-card.row .temps {
-        font-size: max(13px, 22cqh);
+        font-size: max(14px, 34cqh);
+      }
+      ha-card.row .weather {
+        gap: 5px;
       }
       ha-card.row .weather ha-icon {
-        --mdc-icon-size: max(18px, 30cqh);
+        --mdc-icon-size: max(20px, 40cqh);
       }
       ha-card.row .label {
-        font-size: max(12px, 20cqh);
+        font-size: max(13px, 30cqh);
         align-self: baseline;
       }
       :host([data-size="small"]) .lcd {

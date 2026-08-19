@@ -1,6 +1,6 @@
 {
   "name": "faceplate-cards",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "A suite of Home Assistant dashboard cards styled like the faceplate of a physical appliance — an inset LCD readout with round tactile buttons — optimized for small wall panels such as the NSPanel Pro",
   "type": "module",
   "main": "dist/faceplate-cards.js",
