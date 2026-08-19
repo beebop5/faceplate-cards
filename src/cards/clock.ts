@@ -219,6 +219,28 @@ export class FaceplateClockCard extends FaceplateCard<FaceplateClockConfig> {
       ha-card.row.with-label.with-sub {
         --fp-clock-fit: 76cqh;
       }
+      /* One size for the whole bar. The time, the date and the weather are one
+         line of text, so sizing them apart makes the smaller ones read as an
+         afterthought; they all take the size the figures settle on.
+         Capped against width as well as height because this line grows: adding
+         seconds is four more characters, and a bar that overflows its tile
+         silently loses the end of itself. */
+      ha-card.row .lcd {
+        font-size: min(
+          var(--faceplate-clock-size, 44px),
+          var(--fp-clock-fit, 76cqh),
+          5.2cqw
+        );
+      }
+      ha-card.row .time,
+      ha-card.row .date,
+      ha-card.row .temps,
+      ha-card.row .label {
+        font-size: 1em;
+      }
+      ha-card.row .weather ha-icon {
+        --mdc-icon-size: 1em;
+      }
       ha-card.row .sub {
         margin-top: 0;
         gap: 8px;
@@ -237,18 +259,12 @@ export class FaceplateClockCard extends FaceplateCard<FaceplateClockConfig> {
       }
       /* Secondary text is sized against the figures, not fixed at 13px — a
          date a third the height of the time beside it reads as an accident. */
-      ha-card.row .date,
-      ha-card.row .temps {
-        font-size: max(14px, 34cqh);
-      }
+
       ha-card.row .weather {
         gap: 5px;
       }
-      ha-card.row .weather ha-icon {
-        --mdc-icon-size: max(20px, 40cqh);
-      }
+
       ha-card.row .label {
-        font-size: max(13px, 30cqh);
         align-self: baseline;
       }
       :host([data-size="small"]) .lcd {
