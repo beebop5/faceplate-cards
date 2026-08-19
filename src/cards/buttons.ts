@@ -91,15 +91,19 @@ export class FaceplateButtonsCard extends FaceplateCard<FaceplateButtonsConfig> 
         width: 100%;
         height: 100%;
       }
-      /* Square, sized from the row's height, spread across its width. Letting
-         them take an equal share of the width instead stretches them into
-         lozenges on a one-row tile — seven buttons across 480px is 62 wide
-         against 44 tall — and a button that is not square stops reading as a
-         button. Squares with the slack between them look deliberate. */
+      /* Square, sized by whichever of the tile's two dimensions runs out
+         first. Height alone is not enough: on a two-row tile seven squares of
+         the row's height are wider than the tile, and the overflow is clipped
+         silently — the card showed five of seven buttons and looked deliberate
+         doing it. Width alone stretches them into lozenges on a one-row tile.
+         So: the smaller of the row's height and its fair share of the width. */
       .row .ctl {
         flex: 0 0 auto;
-        height: 100%;
-        width: auto;
+        width: min(
+          100cqh - 12px,
+          (100cqw - (var(--fp-count, 1) - 1) * 4px - 12px) / var(--fp-count, 1)
+        );
+        height: auto;
         max-width: none;
         aspect-ratio: 1;
       }
@@ -131,7 +135,7 @@ export class FaceplateButtonsCard extends FaceplateCard<FaceplateButtonsConfig> 
 
     return html`
       <ha-card>
-        <div class="row">
+        <div class="row" style="--fp-count: ${buttons.length}">
           ${buttons.map((spec) => {
             const on = this._isOn(spec);
             return html`<button
