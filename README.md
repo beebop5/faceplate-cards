@@ -120,7 +120,7 @@ follow every intermediate value over the network stutters.
 | `show_forecast` | boolean | `true` | |
 | `forecast_type` | string | `daily` | `daily`, `hourly` or `twice_daily` |
 | `forecast_slots` | number | `5` | |
-| `secondary_info` | list | `[humidity]` | Any of `humidity`, `wind`, `pressure`, `apparent` |
+| `secondary_info` | list | first available | Any of `humidity`, `wind`, `pressure`, `apparent`. Unset, the card takes the first of those the entity actually publishes — many `weather` entities report no humidity |
 
 ### Banner
 
@@ -179,3 +179,28 @@ npm run build      # bundle to dist/faceplate-cards.js
 npm run watch      # rebuild on change
 npm test           # build + jsdom smoke tests across all seven cards
 ```
+
+## Visual testing
+
+`npm test` proves behaviour in jsdom. It cannot tell you a button collapsed to
+nothing or a readout overflowed its tile — both of which happened during
+development and neither of which throws.
+
+```sh
+npm run shots            # every scene
+npm run shots -- kitchen # scenes matching a name
+```
+
+This renders the built bundle in Chromium against stand-ins for Home
+Assistant's `ha-card` and `ha-icon`, using entity states captured from a live
+instance, at the panel sizes the suite targets:
+
+| Scene viewport | Device |
+| --- | --- |
+| 480×432 | NSPanel Pro 80mm (`px30_evb`, 480×480 @160dpi, 48px of system UI) |
+| 1280×800 | 10" landscape panel (`N101GN`, 800×1280 @160dpi, rotated) |
+
+Both run at 160dpi, so `devicePixelRatio` is 1 and CSS pixels are physical
+pixels. Screenshots land in `test/render/out/`, and the run reports console
+errors, cards overflowing their tile, controls that collapsed to zero size,
+and text under 10px.

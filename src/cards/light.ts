@@ -48,7 +48,10 @@ export class FaceplateLightCard extends FaceplateCard<FaceplateLightConfig> {
   }
 
   public getGridOptions() {
-    return { columns: 6, rows: 3, min_columns: 3, min_rows: 2 };
+    // Four rows: the readout, two sliders and the button row do not fit in
+    // three, and a slider pushed out of its tile is silently unusable.
+    const rows = this._config?.show_color_temp_control ? 4 : 3;
+    return { columns: 6, rows, min_columns: 3, min_rows: 2 };
   }
 
   private get _on(): boolean {
@@ -111,8 +114,13 @@ export class FaceplateLightCard extends FaceplateCard<FaceplateLightConfig> {
         gap: 6px;
         flex: none;
       }
+      /* On a tile too short for everything, the readout gives up its height
+         before the sliders do — a clipped number is still readable, a slider
+         pushed out of the card is not usable at all. */
       .lcd {
-        flex: 1;
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: hidden;
       }
       .bulb {
         --mdc-icon-size: 22px;

@@ -77,29 +77,47 @@ export class FaceplateButtonCard extends FaceplateCard<FaceplateButtonConfig> {
   static styles = [
     ...faceplateStyles,
     css`
+      /* A size container, so the button can be sized from whichever of the
+         tile's two dimensions is smaller. aspect-ratio alone cannot do it:
+         it derives one axis from the other, so whichever axis gets clamped
+         second leaves the circle an ellipse. The min-height floor keeps the
+         button visible if this ever lands in a view that gives the card an
+         indefinite height, where a size container would otherwise collapse. */
       ha-card {
         justify-content: center;
         align-items: center;
         gap: 4px;
         padding: 6px;
+        container-type: size;
+        min-height: 48px;
       }
       /* The button is the card: it takes whatever space the tile gives it,
-         squared off so it stays a circle at any tile shape. */
+         squared off so it stays a circle at any tile shape.
+         Deliberately not a size container: container-type size on an element
+         with auto width and height collapses it to nothing, which renders the
+         button invisible. */
       .ctl.fill {
-        width: auto;
-        height: auto;
+        /* Square by construction: the smaller of the tile's two dimensions,
+           less whatever the labels underneath have reserved. */
+        --fp-button: min(100cqw, calc(100cqh - var(--fp-labels, 0px)));
+        width: var(--fp-button);
+        height: var(--fp-button);
         max-width: none;
-        flex: 0 1 auto;
-        min-height: 0;
-        min-width: 0;
-        max-height: 100%;
-        aspect-ratio: 1;
-        container-type: size;
+        flex: none;
+      }
+      /* Each label line under the button takes its height out of the circle
+         rather than squashing it. */
+      ha-card.with-name .ctl.fill {
+        --fp-labels: 20px;
+      }
+      ha-card.with-state .ctl.fill {
+        --fp-labels: 20px;
+      }
+      ha-card.with-name.with-state .ctl.fill {
+        --fp-labels: 38px;
       }
       .ctl.fill ha-icon {
-        /* Track the button rather than the card, so a wide short tile scales
-           the glyph off the height it actually has. */
-        --mdc-icon-size: min(52cqh, 52cqw, 40px);
+        --mdc-icon-size: clamp(16px, 46cqmin, 38px);
       }
       .label {
         font-size: 12px;
@@ -133,8 +151,17 @@ export class FaceplateButtonCard extends FaceplateCard<FaceplateButtonConfig> {
     const icon =
       config.icon ?? stateObj?.attributes.icon ?? this._domainIcon(on);
 
+    const showName = config.show_name !== false && Boolean(name);
+    const showState = Boolean(config.show_state && stateObj);
+
     return html`
-      <ha-card class=${classMap({ unavailable })}>
+      <ha-card
+        class=${classMap({
+          unavailable,
+          "with-name": showName,
+          "with-state": showState,
+        })}
+      >
         ${config.show_icon === false
           ? nothing
           : html`<button
@@ -156,12 +183,12 @@ export class FaceplateButtonCard extends FaceplateCard<FaceplateButtonConfig> {
             >
               <ha-icon icon=${icon}></ha-icon>
             </button>`}
-        ${config.show_name === false || !name
-          ? nothing
-          : html`<span class="label" title=${name}>${name}</span>`}
-        ${config.show_state && stateObj
+        ${showName
+          ? html`<span class="label" title=${name}>${name}</span>`
+          : nothing}
+        ${showState
           ? html`<span class="label state"
-              >${localizeState(this.hass, stateObj)}</span
+              >${localizeState(this.hass, stateObj!)}</span
             >`
           : nothing}
       </ha-card>

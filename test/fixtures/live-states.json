@@ -1,0 +1,162 @@
+{
+  "_comment": "Real entity states captured from the production Home Assistant instance on 2026-08-19, so the dashboard tests render against the attributes these cards will actually see rather than idealised ones. Notably: the Panasonic climate entities report a fan_mode ('on') that is absent from their own fan_modes list, their swing_modes cover both axes in a single select, and weather.home carries no humidity attribute.",
+  "states": {
+    "climate.rc_office_ac_office": {
+      "entity_id": "climate.rc_office_ac_office",
+      "state": "cool",
+      "attributes": {
+        "hvac_modes": ["off", "heat_cool", "cool", "heat", "fan_only", "dry"],
+        "min_temp": 16.0,
+        "max_temp": 30.0,
+        "target_temp_step": 0.5,
+        "fan_modes": ["Automatic", "1", "2", "3", "4", "5"],
+        "preset_modes": ["Normal", "Powerful", "Quiet"],
+        "swing_modes": ["off", "both", "vertical", "horizontal"],
+        "current_temperature": 19.0,
+        "temperature": 21.0,
+        "fan_mode": "on",
+        "preset_mode": "none",
+        "swing_mode": "vertical",
+        "friendly_name": "Rc-Office-Ac office",
+        "supported_features": 441
+      }
+    },
+    "climate.rc_livingroom1_ac_lr1": {
+      "entity_id": "climate.rc_livingroom1_ac_lr1",
+      "state": "cool",
+      "attributes": {
+        "hvac_modes": ["off", "heat_cool", "cool", "heat", "fan_only", "dry"],
+        "min_temp": 16.0,
+        "max_temp": 30.0,
+        "target_temp_step": 0.5,
+        "fan_modes": ["Automatic", "1", "2", "3", "4", "5"],
+        "preset_modes": ["Normal", "Powerful", "Quiet"],
+        "swing_modes": ["off", "both", "vertical", "horizontal"],
+        "current_temperature": 23.0,
+        "temperature": 23.5,
+        "fan_mode": "on",
+        "preset_mode": "none",
+        "swing_mode": "off",
+        "icon": "mdi:air-conditioner",
+        "friendly_name": "Living Room Left",
+        "supported_features": 441
+      }
+    },
+    "climate.rc_livingroom2_ac_lr2": {
+      "entity_id": "climate.rc_livingroom2_ac_lr2",
+      "state": "off",
+      "attributes": {
+        "hvac_modes": ["off", "heat_cool", "cool", "heat", "fan_only", "dry"],
+        "min_temp": 16.0,
+        "max_temp": 30.0,
+        "target_temp_step": 0.5,
+        "fan_modes": ["Automatic", "1", "2", "3", "4", "5"],
+        "preset_modes": ["Normal", "Powerful", "Quiet"],
+        "swing_modes": ["off", "both", "vertical", "horizontal"],
+        "current_temperature": 25.0,
+        "temperature": 23.5,
+        "fan_mode": "on",
+        "preset_mode": "none",
+        "swing_mode": "off",
+        "icon": "mdi:air-conditioner",
+        "friendly_name": "Living Room Right",
+        "supported_features": 441
+      }
+    },
+    "climate.rc_bedroom_ac_bd": {
+      "entity_id": "climate.rc_bedroom_ac_bd",
+      "state": "off",
+      "attributes": {
+        "hvac_modes": ["off", "heat_cool", "cool", "heat", "fan_only", "dry"],
+        "min_temp": 16.0,
+        "max_temp": 30.0,
+        "target_temp_step": 0.5,
+        "fan_modes": ["Automatic", "1", "2", "3", "4", "5"],
+        "preset_modes": ["Normal", "Powerful", "Quiet"],
+        "swing_modes": ["off", "both", "vertical", "horizontal"],
+        "current_temperature": 24.0,
+        "temperature": 19.5,
+        "fan_mode": "on",
+        "preset_mode": "none",
+        "swing_mode": "off",
+        "friendly_name": "Rc-Bedroom-Ac bd",
+        "supported_features": 441
+      }
+    },
+    "weather.home": {
+      "entity_id": "weather.home",
+      "state": "rainy",
+      "attributes": {
+        "temperature": 29.6,
+        "temperature_unit": "°C",
+        "pressure_unit": "hPa",
+        "wind_bearing": 84,
+        "wind_speed": 27.7,
+        "wind_speed_unit": "km/h",
+        "visibility_unit": "km",
+        "precipitation_unit": "mm",
+        "friendly_name": "Home",
+        "supported_features": 3
+      }
+    },
+    "light.living_room_skylines": {
+      "entity_id": "light.living_room_skylines",
+      "state": "on",
+      "attributes": {
+        "min_color_temp_kelvin": 2000,
+        "max_color_temp_kelvin": 6666,
+        "supported_color_modes": ["color_temp", "xy"],
+        "color_mode": "color_temp",
+        "brightness": 69,
+        "color_temp_kelvin": 3205,
+        "rgb_color": [255, 184, 123],
+        "friendly_name": "Living Room Skylines",
+        "supported_features": 44
+      }
+    },
+    "switch.kitchen_righta_left": {
+      "entity_id": "switch.kitchen_righta_left",
+      "state": "off",
+      "attributes": { "friendly_name": "Kitchen Right Left" }
+    },
+    "switch.balcony_light": {
+      "entity_id": "switch.balcony_light",
+      "state": "off",
+      "attributes": { "friendly_name": "Balcony Light" }
+    },
+    "switch.wardrobe_lights": {
+      "entity_id": "switch.wardrobe_lights",
+      "state": "on",
+      "attributes": { "friendly_name": "Wardrobe Lights" }
+    },
+    "switch.bedroom_left_left": {
+      "entity_id": "switch.bedroom_left_left",
+      "state": "off",
+      "attributes": { "friendly_name": "Bedroom Left Left" }
+    },
+    "sensor.rc_bedroom_ac_outside_temp": {
+      "entity_id": "sensor.rc_bedroom_ac_outside_temp",
+      "state": "30.0",
+      "attributes": {
+        "unit_of_measurement": "°C",
+        "device_class": "temperature",
+        "friendly_name": "Rc-Bedroom-Ac  Outside Temp"
+      }
+    },
+    "script.living_room_fan_power": {
+      "entity_id": "script.living_room_fan_power",
+      "state": "off",
+      "attributes": { "friendly_name": "Living Room Fan Power" }
+    },
+    "script.living_room_fan_2": {
+      "entity_id": "script.living_room_fan_2",
+      "state": "off",
+      "attributes": { "friendly_name": "Living Room Fan 2" }
+    },
+    "script.bedroom_fan_power": {
+      "entity_id": "script.bedroom_fan_power",
+      "state": "off",
+      "attributes": { "friendly_name": "Bedroom Fan Power" }
+    }
+  }
+}

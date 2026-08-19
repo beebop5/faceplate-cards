@@ -8,14 +8,17 @@
     "build": "esbuild src/index.ts --bundle --minify --format=esm --target=chrome100 --outfile=dist/faceplate-cards.js",
     "watch": "esbuild src/index.ts --bundle --format=esm --target=chrome100 --outfile=dist/faceplate-cards.js --watch",
     "typecheck": "tsc --noEmit",
-    "test": "npm run build && node test/smoke.mjs"
+    "test": "npm run build && node test/smoke.mjs && node test/dashboards.mjs",
+    "shots": "npm run build && node test/render/render.mjs"
   },
   "dependencies": {
     "lit": "^3.1.4"
   },
   "devDependencies": {
+    "@mdi/js": "^7.4.47",
     "esbuild": "^0.21.5",
     "jsdom": "^30.0.1",
+    "playwright": "^1.62.1",
     "typescript": "^5.4.5"
   },
   "license": "MIT"

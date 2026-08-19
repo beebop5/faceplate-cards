@@ -194,6 +194,13 @@ export class FaceplateWeatherCard extends FaceplateCard<FaceplateWeatherConfig> 
       .slot-low {
         color: var(--secondary-text-color);
       }
+      /* With the current conditions hidden the forecast is the whole card, so
+         the rule that would separate it from them has nothing to separate. */
+      .lcd.no-current .forecast {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: none;
+      }
       @container (max-width: 260px) {
         .slot-temps {
           font-size: 10px;
@@ -220,7 +227,7 @@ export class FaceplateWeatherCard extends FaceplateCard<FaceplateWeatherConfig> 
 
     return html`
       <ha-card @click=${() => moreInfo(this, config.entity!)}>
-        <div class="lcd">
+        <div class="lcd ${config.show_current === false ? "no-current" : ""}">
           ${config.show_current === false
             ? nothing
             : html`
@@ -268,9 +275,17 @@ export class FaceplateWeatherCard extends FaceplateCard<FaceplateWeatherConfig> 
     `;
   }
 
-  /** The auxiliary line: whichever measurements the user asked for. */
+  /** The auxiliary line: whichever measurements the user asked for.
+   *
+   *  Left unconfigured it takes the first reading the entity actually
+   *  publishes. Defaulting flatly to humidity renders an empty line on the
+   *  many `weather` entities that don't report it. */
   private _secondary(stateObj: { attributes: Record<string, any> }): string {
-    const wanted = this._config?.secondary_info ?? ["humidity"];
+    const wanted =
+      this._config?.secondary_info ??
+      (["humidity", "apparent", "wind", "pressure"] as const).filter((key) =>
+        this._hasReading(stateObj, key)
+      ).slice(0, 1);
     const parts: string[] = [];
     for (const key of wanted) {
       if (key === "humidity" && stateObj.attributes.humidity !== undefined) {
@@ -304,6 +319,19 @@ export class FaceplateWeatherCard extends FaceplateCard<FaceplateWeatherConfig> 
       }
     }
     return parts.join("   ");
+  }
+
+  private _hasReading(
+    stateObj: { attributes: Record<string, any> },
+    key: "humidity" | "wind" | "pressure" | "apparent"
+  ): boolean {
+    const attribute = {
+      humidity: "humidity",
+      wind: "wind_speed",
+      pressure: "pressure",
+      apparent: "apparent_temperature",
+    }[key];
+    return stateObj.attributes[attribute] !== undefined;
   }
 }
 

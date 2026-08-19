@@ -87,14 +87,27 @@ export class FaceplateSlider extends LitElement {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 12px;
+      padding: 0 8px;
       pointer-events: none;
       font-size: 13px;
       font-weight: 500;
-      /* Sits over both the well and the fill, so it needs a colour that works
-         on either — mix-blend-mode would invert against the theme. */
-      color: var(--primary-text-color);
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+    }
+    /* The label and value sit over whatever the track happens to be showing —
+       the empty well, a fill in the light's own colour, or the pale end of the
+       warmth gradient. No single text colour is readable on all three, so each
+       gets its own scrim and is always set in white, the way a legend is
+       printed onto an appliance's slider. */
+    .content span {
+      background: rgba(0, 0, 0, 0.4);
+      color: #fff;
+      padding: 2px 7px;
+      border-radius: 7px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .content span:empty {
+      display: none;
     }
     .value {
       font-variant-numeric: tabular-nums;
