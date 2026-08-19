@@ -234,14 +234,16 @@ export const buttonStyles = css`
      text would tint with the text colour and come out fainter than the
      inactive button, so every card sets it explicitly.
 
-     Gen1 wall panels ship Chromium 107, which predates color-mix(); the plain
-     declaration first means those still get a filled button rather than
-     dropping the background entirely. */
+     The older panels ship Chromium 107, which predates color-mix(). There the
+     tint collapses to the plain background — identical to an inactive button —
+     so the ring, which needs no color-mix, is what actually carries the state.
+     Where color-mix does work the two reinforce each other. */
   .ctl.on {
+    box-shadow: inset 0 0 0 2px currentColor;
     background: var(--secondary-background-color);
     background: color-mix(
       in srgb,
-      currentColor 22%,
+      currentColor 26%,
       var(--secondary-background-color)
     );
   }
