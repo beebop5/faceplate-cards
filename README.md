@@ -36,9 +36,13 @@ Faceplate name.
 
 One resource registers all seven cards.
 
-### HACS
+### HACS (custom repository)
 
-Not yet published. When it is, it will install as a single Dashboard plugin.
+1. HACS → three-dot menu → *Custom repositories*
+2. Add `https://github.com/beebop5/faceplate-cards` with type **Dashboard**
+3. Install *Faceplate Cards* — HACS registers the resource for you
+
+Not submitted to the HACS default store.
 
 ## Configuration
 
