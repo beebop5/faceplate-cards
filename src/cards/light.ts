@@ -71,7 +71,19 @@ export class FaceplateLightCard extends FaceplateCard<FaceplateLightConfig> {
     // so on a crowded panel it is duplicated height rather than information.
     let rows = this._config?.show_color_temp_control ? 4 : 3;
     if (this._config?.show_state === false) rows -= 1;
-    return { columns: 6, rows, min_columns: 3, min_rows: 2 };
+    if (this._config?.show_controls === false) rows -= 1;
+    // Stripped to a name and one slider, the card is a strip and a two-row
+    // floor is just padding — several of them stacked push everything else off
+    // a panel. The floor only protects layouts that still have something to
+    // protect.
+    const bare =
+      this._config?.show_state === false && this._config?.show_controls === false;
+    return {
+      columns: 6,
+      rows: Math.max(1, rows),
+      min_columns: 3,
+      min_rows: bare ? 1 : 2,
+    };
   }
 
   private get _on(): boolean {
