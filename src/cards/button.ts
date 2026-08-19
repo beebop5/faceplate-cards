@@ -24,6 +24,13 @@ export interface FaceplateButtonConfig extends FaceplateBaseConfig {
   show_state?: boolean;
   /** Fill the button with the accent colour rather than tinting it on. */
   accent?: boolean;
+  /**
+   * A digit or two set into the icon's corner, the way mdi:fan-speed-2 draws
+   * its own. Material only numbers its fan icons to three, so a six-speed fan
+   * would otherwise show three numbered glyphs and three identical ones; this
+   * numbers the whole set consistently however many speeds there are.
+   */
+  icon_badge?: string;
 }
 
 /**
@@ -78,6 +85,24 @@ export class FaceplateButtonCard extends FaceplateCard<FaceplateButtonConfig> {
   static styles = [
     ...faceplateStyles,
     css`
+      /* The digit sits in the icon's corner rather than beside it, so the
+         button still reads as one glyph at a glance and the label is not
+         competing with the icon for a small tile's width. */
+      .glyph {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .glyph-badge {
+        position: absolute;
+        right: -0.28em;
+        bottom: -0.18em;
+        font-size: 0.5em;
+        font-weight: 700;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+      }
       /* A size container, so the button can be sized from whichever of the
          tile's two dimensions is smaller. aspect-ratio alone cannot do it:
          it derives one axis from the other, so whichever axis gets clamped
@@ -187,7 +212,12 @@ export class FaceplateButtonCard extends FaceplateCard<FaceplateButtonConfig> {
               @pointercancel=${this._handler!.up}
               @contextmenu=${(e: Event) => e.preventDefault()}
             >
-              <ha-icon icon=${icon}></ha-icon>
+              ${config.icon_badge
+                ? html`<span class="glyph">
+                    <ha-icon icon=${icon}></ha-icon>
+                    <span class="glyph-badge">${config.icon_badge}</span>
+                  </span>`
+                : html`<ha-icon icon=${icon}></ha-icon>`}
             </button>`}
         ${showName
           ? html`<span class="label" title=${name}>${name}</span>`
