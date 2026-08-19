@@ -235,14 +235,17 @@ BUNDLE_SOURCE
 /**
  * The panels this suite is built for, measured over adb rather than guessed.
  *
- *   px30_evb  480x480 @160dpi, app area 480x432 — the 80mm square panels
- *   N101GN   1280x800 @160dpi landscape, full-screen — the large panel
+ *   px30_evb  480x480 @160dpi — the 80mm square panels
+ *   N101GN   1280x800 @160dpi landscape — the large panel
  *
  * Density 160 means devicePixelRatio 1, so CSS pixels are physical pixels and
- * these numbers are the browser viewport exactly.
+ * these numbers are the browser viewport exactly. The 80mm figure is the full
+ * 480: `dumpsys window` reports an app area of 480x432, but the panel app runs
+ * the WebView fullscreen, and a screenshot of a real panel shows the dashboard
+ * using every row.
  */
 const PANELS = {
-  "nspanel-80": { width: 480, height: 432 },
+  "nspanel-80": { width: 480, height: 480 },
   "nspanel-120": { width: 1280, height: 800 },
 };
 

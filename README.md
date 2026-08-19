@@ -201,7 +201,7 @@ instance, at the panel sizes the suite targets:
 
 | Scene viewport | Device |
 | --- | --- |
-| 480×432 | NSPanel Pro 80mm (`px30_evb`, 480×480 @160dpi, 48px of system UI) |
+| 480×480 | NSPanel Pro 80mm (`px30_evb`, 480×480 @160dpi, fullscreen WebView) |
 | 1280×800 | 10" landscape panel (`N101GN`, 800×1280 @160dpi, rotated) |
 
 Both run at 160dpi, so `devicePixelRatio` is 1 and CSS pixels are physical
