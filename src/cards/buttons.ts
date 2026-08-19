@@ -86,21 +86,22 @@ export class FaceplateButtonsCard extends FaceplateCard<FaceplateButtonsConfig> 
       .row {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        gap: 6px;
+        justify-content: space-evenly;
+        gap: 4px;
         width: 100%;
         height: 100%;
       }
-      /* Each button takes an equal share of the row and squares itself off
-         against the row's height, so the set stays on one line however many
-         there are — the point of the card. */
+      /* Square, sized from the row's height, spread across its width. Letting
+         them take an equal share of the width instead stretches them into
+         lozenges on a one-row tile — seven buttons across 480px is 62 wide
+         against 44 tall — and a button that is not square stops reading as a
+         button. Squares with the slack between them look deliberate. */
       .row .ctl {
-        flex: 1 1 0;
-        min-width: 0;
+        flex: 0 0 auto;
+        height: 100%;
         width: auto;
         max-width: none;
-        height: 100%;
-        aspect-ratio: auto;
+        aspect-ratio: 1;
       }
       .ctl ha-icon {
         --mdc-icon-size: clamp(16px, 34cqmin, 34px);
