@@ -19,6 +19,8 @@ export const faceplateTokens = css`
     height: 100%;
 
     --faceplate-radius: 12px;
+    /* Controls are rounded squares, not circles. */
+    --faceplate-control-radius: 12px;
     --faceplate-gap: 8px;
     --faceplate-padding: 10px;
     --faceplate-button-size: 46px;
@@ -204,7 +206,7 @@ export const buttonStyles = css`
     max-width: var(--faceplate-button-max, 60px);
     height: auto;
     aspect-ratio: 1;
-    border-radius: 50%;
+    border-radius: var(--faceplate-control-radius);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -393,7 +395,7 @@ export const popupStyles = css`
     width: 40px;
     height: 40px;
     flex: none;
-    border-radius: 50%;
+    border-radius: var(--faceplate-control-radius);
     display: flex;
     align-items: center;
     justify-content: center;

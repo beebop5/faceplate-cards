@@ -111,7 +111,7 @@ export class FaceplateLightCard extends FaceplateCard<FaceplateLightConfig> {
   static styles = [
     ...faceplateStyles,
     css`
-      /* The badge is a control, so it has to look like one: a round target
+      /* The badge is a control, so it has to look like one: a target
          big enough for a thumb, sitting in the title row. Plain rgba rather
          than color-mix — the Gen1 panels run a Chromium that predates it and
          would drop the declaration, leaving an invisible button. */
@@ -120,7 +120,7 @@ export class FaceplateLightCard extends FaceplateCard<FaceplateLightConfig> {
         height: 34px;
         justify-content: center;
         flex: none;
-        border-radius: 50%;
+        border-radius: var(--faceplate-control-radius);
         background: rgba(127, 127, 127, 0.16);
         transition: background 0.15s;
       }
