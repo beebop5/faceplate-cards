@@ -26,6 +26,12 @@ export interface FaceplateClockConfig extends FaceplateBaseConfig {
   /** A `weather` entity, to put today's outlook beside the date. */
   weather_entity?: string;
   show_weather?: boolean;
+  /**
+   * `row` puts the time, date and weather on one line instead of stacking the
+   * date under the figures. On a wide, one-row tile that is the difference
+   * between figures capped at a third of the height and figures filling it.
+   */
+  layout?: "stack" | "row";
 }
 
 /** The panel clock: LCD figures, tabular so the layout never twitches. */
@@ -196,6 +202,41 @@ export class FaceplateClockCard extends FaceplateCard<FaceplateClockConfig> {
         font-weight: 500;
         color: var(--secondary-text-color);
       }
+      /* Row layout: everything on one line, so the figures are limited by the
+         tile's height rather than by having to leave a line free beneath them.
+         The stacked layout caps them at 46cqh once a date is shown; here they
+         take nearly the whole height, which on a wide one-row tile is the
+         difference between a readable clock and a token one. */
+      ha-card.row .lcd {
+        flex-direction: row;
+        align-items: baseline;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: nowrap;
+      }
+      ha-card.row.with-sub,
+      ha-card.row.with-label,
+      ha-card.row.with-label.with-sub {
+        --fp-clock-fit: 76cqh;
+      }
+      ha-card.row .sub {
+        margin-top: 0;
+        gap: 8px;
+        flex: none;
+      }
+      /* Secondary text scales with the figures rather than staying at 13px,
+         which looks stranded next to a clock three times its size. */
+      ha-card.row .date,
+      ha-card.row .temps {
+        font-size: max(13px, 22cqh);
+      }
+      ha-card.row .weather ha-icon {
+        --mdc-icon-size: max(18px, 30cqh);
+      }
+      ha-card.row .label {
+        font-size: max(12px, 20cqh);
+        align-self: baseline;
+      }
       :host([data-size="small"]) .lcd {
         --faceplate-clock-size: 30px;
       }
@@ -262,6 +303,7 @@ export class FaceplateClockCard extends FaceplateCard<FaceplateClockConfig> {
         class=${classMap({
           "with-sub": Boolean(date || weather),
           "with-label": Boolean(config.name),
+          row: config.layout === "row",
         })}
       >
         <div class="lcd">
