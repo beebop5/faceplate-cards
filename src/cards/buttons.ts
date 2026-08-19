@@ -137,15 +137,18 @@ export class FaceplateButtonsCard extends FaceplateCard<FaceplateButtonsConfig> 
          silently — the card showed five of seven buttons and looked deliberate
          doing it. Width alone stretches them into lozenges on a one-row tile.
          So: the smaller of the row's height and its fair share of the width. */
+      /* Each button takes its fair share of the width and the whole of the
+         height. Square was the old rule, and it wasted whatever the binding
+         axis left over: seven buttons across a 480px panel cap at 62px wide,
+         so a two-row strip drew 62px squares floating in a 112px card and
+         gave back half the space it had asked for. */
       .row .ctl {
         flex: 0 0 auto;
-        width: min(
-          100cqh,
+        width: calc(
           (100cqw - (var(--fp-count, 1) - 1) * 4px) / var(--fp-count, 1)
         );
-        height: auto;
+        height: 100%;
         max-width: none;
-        aspect-ratio: 1;
         /* The glyph is sized off the button, not the card. Off the card it
            tracked the card's short side, so a one-row row of seven buttons
            bottomed out on the 16px floor and drew postage stamps inside

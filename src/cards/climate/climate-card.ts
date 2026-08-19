@@ -960,14 +960,23 @@ export class FaceplateClimateCard extends LitElement {
          one screen: the readout and the buttons share a row instead of
          stacking, so the card costs ~64px of height instead of ~190px. */
       .layout-row {
-        --faceplate-readout-size: 26px;
-        --faceplate-button-size: 38px;
-        --faceplate-button-max: 42px;
-        --faceplate-icon-size: 20px;
+        /* Sized against the card's own height so a strip given two rows grows
+           into them. It used to hold these fixed and centre the result, which
+           on a two-row tile drew a thin ribbon of content in a tall box and
+           looked like a mistake. The floors are the old fixed values, so a
+           one-row strip is unchanged. */
+        --faceplate-readout-size: clamp(26px, 34cqh, 44px);
+        --faceplate-button-size: clamp(38px, 50cqh, 62px);
+        --faceplate-button-max: clamp(42px, 54cqh, 68px);
+        --faceplate-icon-size: clamp(20px, 26cqh, 32px);
+        container-type: size;
+        /* If this ever lands somewhere its height is indefinite, size
+           containment would collapse it to nothing; this keeps it visible. */
+        min-height: 52px;
         flex-direction: row;
         align-items: center;
         justify-content: flex-start;
-        padding: 6px 8px;
+        padding: clamp(6px, 6cqh, 12px) 8px;
         gap: 8px;
       }
       .layout-row .lcd {
