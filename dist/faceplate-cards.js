@@ -169,6 +169,8 @@ var ce=Object.defineProperty;var ri=Object.getOwnPropertyDescriptor;var k=(o,i)=
     display: flex;
     align-items: center;
     gap: 5px;
+    flex: 0 1 auto;
+    min-width: 0;
     font-family: var(--faceplate-mono);
     font-size: 11px;
     font-weight: 500;
@@ -1690,12 +1692,12 @@ var ce=Object.defineProperty;var ri=Object.getOwnPropertyDescriptor;var k=(o,i)=
         justify-content: flex-end;
       }
       ha-card.row .temp-now {
-        font-size: 1em;
+        font-size: 15px;
         font-weight: 500;
         font-variant-numeric: tabular-nums;
       }
       ha-card.row .temps {
-        font-size: 0.68em;
+        font-size: 12px;
         color: var(--secondary-text-color);
       }
       ha-card.row.with-sub,
@@ -1721,13 +1723,14 @@ var ce=Object.defineProperty;var ri=Object.getOwnPropertyDescriptor;var k=(o,i)=
         padding: 2px 16px;
       }
       ha-card.row .time,
-      ha-card.row .date,
-      ha-card.row .temps,
       ha-card.row .label {
         font-size: 1em;
       }
+      ha-card.row .date {
+        font-size: 15px;
+      }
       ha-card.row .weather ha-icon {
-        --mdc-icon-size: 1em;
+        --mdc-icon-size: 18px;
       }
       ha-card.row .sub {
         margin-top: 0;

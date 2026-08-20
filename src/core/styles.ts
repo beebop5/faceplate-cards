@@ -176,6 +176,8 @@ export const lcdStyles = css`
     display: flex;
     align-items: center;
     gap: 5px;
+    flex: 0 1 auto;
+    min-width: 0;
     font-family: var(--faceplate-mono);
     font-size: 11px;
     font-weight: 500;
