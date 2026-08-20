@@ -134,7 +134,7 @@ export const lcdStyles = css`
   }
   .readout.dimmed,
   .readout.dimmed .unit {
-    color: var(--disabled-text-color, var(--secondary-text-color));
+    color: var(--primary-text-color);
   }
   .unit {
     font-size: calc(var(--faceplate-readout-size, 40px) * 0.4);

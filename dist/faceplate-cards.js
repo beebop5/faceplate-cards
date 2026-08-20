@@ -127,7 +127,7 @@ var ce=Object.defineProperty;var ri=Object.getOwnPropertyDescriptor;var k=(o,i)=
   }
   .readout.dimmed,
   .readout.dimmed .unit {
-    color: var(--disabled-text-color, var(--secondary-text-color));
+    color: var(--primary-text-color);
   }
   .unit {
     font-size: calc(var(--faceplate-readout-size, 40px) * 0.4);
@@ -1374,6 +1374,8 @@ var ce=Object.defineProperty;var ri=Object.getOwnPropertyDescriptor;var k=(o,i)=
        printed onto an appliance's slider. */
     .content span {
       background: rgba(0, 0, 0, 0.4);
+      font-family: var(--faceplate-mono, ui-monospace, monospace);
+      font-variant-numeric: tabular-nums;
       color: #fff;
       padding: 2px 7px;
       border-radius: 7px;

@@ -110,6 +110,8 @@ export class FaceplateSlider extends LitElement {
        printed onto an appliance's slider. */
     .content span {
       background: rgba(0, 0, 0, 0.4);
+      font-family: var(--faceplate-mono, ui-monospace, monospace);
+      font-variant-numeric: tabular-nums;
       color: #fff;
       padding: 2px 7px;
       border-radius: 7px;
