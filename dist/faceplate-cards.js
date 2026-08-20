@@ -2037,12 +2037,13 @@ var ce=Object.defineProperty;var ri=Object.getOwnPropertyDescriptor;var k=(o,i)=
       .row .ctl {
         flex: 0 0 auto;
         width: var(--fp-w);
-        /* Square, and no taller than the card. Which of the two binds depends
-           on the strip: four buttons on a two-row tile are limited by height,
-           seven on a one-row tile by width. Give a strip more rows than its
-           buttons can use and the surplus shows as a band of card above and
-           below them, so size the tile to the buttons, not the other way. */
-        height: min(100%, var(--fp-w));
+        /* Fill the strip's height, whatever the width share turned out to be.
+           Squares were the old rule, and they misaligned neighbouring panels:
+           five buttons sharing a row cap at ~89px and float in a taller card
+           with bands above and below, while four fill it — so the same strip
+           on two panels sat at different heights. Buttons are rectangles now;
+           every strip is flush, and strips of different counts line up. */
+        height: 100%;
         max-width: none;
         /* The glyph is sized off the button, not the card. Off the card it
            tracked the card's short side, so a one-row row of seven buttons
