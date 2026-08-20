@@ -236,7 +236,6 @@ BUNDLE_SOURCE
  * The panels this suite is built for, measured over adb rather than guessed.
  *
  *   px30_evb  480x480 @160dpi — the 80mm square panels
- *   N101GN   1280x800 @160dpi landscape — the large panel
  *
  * Density 160 means devicePixelRatio 1, so CSS pixels are physical pixels and
  * these numbers are the browser viewport exactly. The 80mm figure is the full

@@ -16,6 +16,22 @@ One design language runs throughout: a recessed panel carrying the numbers, a
 dashed rule under a row of secondary readouts, and circular controls that hold
 their size as the tile gets smaller.
 
+![Climate, lighting and fan controls on a wall panel](images/panel-living-room.png)
+
+Every screenshot here is a photograph of the running suite, captured off a
+panel over adb at its native 480×480 — not a mock, and not a desktop browser
+shrunk down.
+
+<p align="center">
+  <img src="images/panel-office.png" width="45%" alt="A climate card and a five-day forecast strip">
+  <img src="images/panel-bedroom.png" width="45%" alt="A climate card above a numbered fan-speed row">
+</p>
+
+Left: `faceplate-climate-card` with `faceplate-weather-card` beneath it. Right:
+the same climate card over a `faceplate-buttons-card` — one card owning the
+full width, because seven fan speeds laid out as separate cards cannot sit on
+one line in a twelve-column grid.
+
 ## The cards
 
 | Card | Replaces | What it does |
@@ -294,7 +310,7 @@ instance, at the panel sizes the suite targets:
 | Scene viewport | Device |
 | --- | --- |
 | 480×480 | NSPanel Pro 80mm (`px30_evb`, 480×480 @160dpi, fullscreen WebView) |
-| 1280×800 | 10" landscape panel (`N101GN`, 800×1280 @160dpi, rotated) |
+| 1280×800 | A wide viewport, for checking the suite generally |
 
 Both run at 160dpi, so `devicePixelRatio` is 1 and CSS pixels are physical
 pixels. Screenshots land in `test/render/out/`, and the run reports console
