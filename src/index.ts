@@ -10,6 +10,7 @@ import "./cards/clock";
 import "./cards/weather";
 import "./cards/banner";
 import "./cards/buttons";
+import "./cards/media";
 
 // The sibling cards register themselves as they load; the climate card is
 // large enough to keep its own module layout under cards/climate/.

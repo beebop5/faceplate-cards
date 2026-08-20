@@ -27,6 +27,7 @@ their size as the tile gets smaller.
 | `custom:faceplate-clock-card` | `clock` | Time and date in LCD figures |
 | `custom:faceplate-weather-card` | `weather-forecast` | Current conditions and a forecast strip |
 | `custom:faceplate-banner-card` | `markdown` | Template-driven status line |
+| `custom:faceplate-media-card` | `media-control`, `tile` with media features | Now playing, volume and transport controls |
 
 Every card has a visual editor and appears in the card picker under its
 Faceplate name.
@@ -176,6 +177,23 @@ weather_entity: weather.home
 | `forecast_type` | string | `daily` | `daily`, `hourly` or `twice_daily` |
 | `forecast_slots` | number | `5` | |
 | `secondary_info` | list | first available | Any of `humidity`, `wind`, `pressure`, `apparent`. Unset, the card takes the first of those the entity actually publishes — many `weather` entities report no humidity |
+
+### Media
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `entity` | string | **required** | A `media_player` entity |
+| `show_state` | boolean | `true` | The now-playing readout |
+| `show_art` | boolean | `true` | Album art beside the title |
+| `show_volume_control` | boolean | `true` | |
+| `show_controls` | boolean | `true` | Transport buttons |
+| `max_volume` | number | `100` | The slider's 100%, as a percentage of the player's full volume |
+
+Every control is gated on the player's `supported_features`: an amplifier that
+reports no previous track doesn't get a previous-track button, because one that
+silently does nothing is worse than one that isn't there. The album art is the
+first thing dropped when the tile gets narrow — the buttons have to stay
+thumb-sized and the title has to stay readable, so the decoration yields first.
 
 ### Banner
 

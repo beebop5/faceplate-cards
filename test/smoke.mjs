@@ -95,6 +95,21 @@ const hass = {
         wind_speed_unit: "km/h",
       },
     },
+    "media_player.amp": {
+      entity_id: "media_player.amp",
+      state: "playing",
+      attributes: {
+        friendly_name: "Marantz",
+        media_title: "Save Your Tears",
+        media_artist: "The Weeknd",
+        entity_picture: "/api/media_player_proxy/amp",
+        volume_level: 0.58,
+        is_volume_muted: false,
+        // PAUSE | VOLUME_SET | VOLUME_MUTE | NEXT_TRACK | PLAY — deliberately
+        // no PREVIOUS_TRACK, which is what the real amplifier reports.
+        supported_features: 1 + 4 + 8 + 32 + 16384,
+      },
+    },
   },
 };
 
@@ -141,6 +156,7 @@ const EXPECTED_CARDS = [
   "faceplate-clock-card",
   "faceplate-weather-card",
   "faceplate-banner-card",
+  "faceplate-media-card",
 ];
 
 for (const type of EXPECTED_CARDS) {
@@ -528,6 +544,96 @@ assert(
     "weather: renders a slot per forecast entry"
   );
   assert(text(root).includes("33"), "weather: forecast shows the high");
+}
+
+/* ----------------------------------------------------------------- media */
+{
+  const { root } = await mount("faceplate-media-card", {
+    type: "custom:faceplate-media-card",
+    entity: "media_player.amp",
+  });
+
+  assert(
+    text(root).includes("Save Your Tears") && text(root).includes("The Weeknd"),
+    `media: shows what is playing (got "${text(root)}")`
+  );
+  assert(
+    root.querySelector(".art")?.getAttribute("src") ===
+      "/api/media_player_proxy/amp",
+    "media: shows the album art"
+  );
+
+  // Controls are gated on supported_features: this player reports no previous
+  // track, so offering one would be a button that silently does nothing.
+  const icons = [...root.querySelectorAll(".controls ha-icon")].map((n) =>
+    n.getAttribute("icon")
+  );
+  assert(
+    icons.includes("mdi:pause") && icons.includes("mdi:skip-next"),
+    `media: renders the transport controls the player supports (got ${icons})`
+  );
+  assert(
+    !icons.includes("mdi:skip-previous"),
+    "media: hides a control the player does not support"
+  );
+
+  calls.length = 0;
+  root.querySelector(".controls .ctl").click();
+  assert(
+    calls.some(([d, s]) => d === "media_player" && s === "media_play_pause"),
+    "media: the transport button calls media_play_pause"
+  );
+
+  const slider = root.querySelector("faceplate-slider");
+  assert(slider.value === 58, `media: the volume slider reads 58% (got ${slider.value})`);
+
+  calls.length = 0;
+  slider.dispatchEvent(
+    new dom.window.CustomEvent("slider-change", {
+      detail: { value: 40 },
+      bubbles: true,
+      composed: true,
+    })
+  );
+  assert(
+    calls.some(
+      ([d, s, data]) =>
+        d === "media_player" && s === "volume_set" && data.volume_level === 0.4
+    ),
+    "media: the volume slider calls volume_set with a 0-1 level"
+  );
+}
+
+/* ------------------------------------------------- media with a ceiling */
+{
+  const { root } = await mount("faceplate-media-card", {
+    type: "custom:faceplate-media-card",
+    entity: "media_player.amp",
+    max_volume: 60,
+  });
+
+  const slider = root.querySelector("faceplate-slider");
+  // 0.58 of full is 58%, which is most of the way to a 60% ceiling.
+  assert(
+    slider.value === 97,
+    `media: volume reads as a share of the ceiling (got ${slider.value})`
+  );
+
+  calls.length = 0;
+  slider.dispatchEvent(
+    new dom.window.CustomEvent("slider-change", {
+      detail: { value: 100 },
+      bubbles: true,
+      composed: true,
+    })
+  );
+  assert(
+    calls.some(
+      ([d, s, data]) =>
+        d === "media_player" && s === "volume_set" && data.volume_level === 0.6
+    ),
+    "media: the slider's 100% is the configured ceiling"
+  );
 }
 
 /* ---------------------------------------------------------------- banner */
