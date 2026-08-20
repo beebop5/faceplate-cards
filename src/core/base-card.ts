@@ -61,11 +61,20 @@ export abstract class FaceplateCard<
   }
 
   /** Guard shared by every render(): bail quietly before setConfig, and show
-   *  a readable card when the entity has gone away. */
+   *  a readable card when the entity has gone away.
+   *
+   *  "No entity" and "an entity that isn't there" are different things. A tile
+   *  that only navigates has nothing to look up and is fine; a card naming an
+   *  entity that does not resolve is a typo, and saying so beats rendering an
+   *  empty tile that looks fine and does nothing. `requiresEntity` decides
+   *  whether an entity is mandatory, not whether a named one may go missing. */
   protected _guard(): typeof nothing | ReturnType<typeof html> | null {
     if (!this._config || !this.hass) return nothing;
     const ctor = this.constructor as typeof FaceplateCard;
-    if (ctor.requiresEntity && !this._stateObj) return this._missingEntity();
+    const named = Boolean(this._config.entity);
+    if (!this._stateObj && (ctor.requiresEntity || named)) {
+      return this._missingEntity();
+    }
     return null;
   }
 }

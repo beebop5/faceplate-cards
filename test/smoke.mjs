@@ -671,6 +671,22 @@ assert(
   );
 }
 
+/* ------------------------------------------------ entity-less navigation */
+{
+  // The other half of the same distinction: a tile that only navigates names
+  // no entity, so there is nothing to be missing and nothing to complain about.
+  const { root } = await mount("faceplate-tile-card", {
+    type: "custom:faceplate-tile-card",
+    name: "All rooms",
+    icon: "mdi:grid",
+    tap_action: { action: "navigate", navigation_path: "/dashboard-all" },
+  });
+  assert(
+    !text(root).includes("Entity not found") && text(root).includes("All rooms"),
+    `a tile with no entity is not an error (got "${text(root)}")`
+  );
+}
+
 console.log(failures === 0 ? "\nAll smoke tests passed" : `\n${failures} failed`);
 
 // The clock card keeps a timer running for as long as it is mounted, which
