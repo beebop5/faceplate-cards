@@ -411,6 +411,11 @@ export const popupStyles = css`
   .popup-body {
     padding: 0 12px 12px;
     overflow-y: auto;
+    /* A column flex item defaults to min-height:auto, which refuses to shrink
+       below its content — so overflow-y had nothing to act on and the sheet
+       clipped its last section instead of scrolling it. */
+    flex: 1 1 auto;
+    min-height: 0;
     display: flex;
     flex-direction: column;
     gap: 0;
