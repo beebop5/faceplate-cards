@@ -1014,7 +1014,8 @@ export class FaceplateClimateCard extends LitElement {
       .layout-row .badge > span {
         display: none;
       }
-      /* Buttons must not wrap here — wrapping is what makes the card tall. */
+      /* On a one-row strip the buttons must not wrap — wrapping is what makes
+         the card tall, and tall is the thing this layout exists to avoid. */
       .layout-row .controls {
         display: flex;
         flex-wrap: nowrap;
@@ -1024,6 +1025,25 @@ export class FaceplateClimateCard extends LitElement {
       .layout-row .ctl {
         width: var(--faceplate-button-size, 38px);
         flex: none;
+      }
+      /* Given two rows or more, the strip stops being a strip: the readout
+         takes the full height on the left and the controls wrap into a block
+         beside it, which is both how the space gets used and how the buttons
+         get big enough to hit. Below this height nothing changes. */
+      @container (min-height: 96px) {
+        .layout-row .lcd {
+          align-self: stretch;
+        }
+        .layout-row .controls {
+          flex-wrap: wrap;
+          justify-content: flex-end;
+          align-content: center;
+          max-width: 58%;
+        }
+        .layout-row .ctl {
+          width: var(--faceplate-button-max, 42px);
+          height: var(--faceplate-button-max, 42px);
+        }
       }
 
       .layout-large {

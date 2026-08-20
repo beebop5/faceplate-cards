@@ -16,6 +16,12 @@ const CARD = "faceplate-buttons-card";
 export interface FaceplateButtonSpec extends Omit<FaceplateBaseConfig, "type"> {
   /** A digit set into the icon's corner, as on the button card. */
   icon_badge?: string;
+  /**
+   * Mark this one out from the rest of the row. Meant for the member of a set
+   * that undoes the others — the Off at the head of a row of fan speeds, which
+   * is otherwise the hardest thing in the row to pick out in a hurry.
+   */
+  danger?: boolean;
 }
 
 export interface FaceplateButtonsConfig extends FaceplateBaseConfig {
@@ -155,11 +161,12 @@ export class FaceplateButtonsCard extends FaceplateCard<FaceplateButtonsConfig> 
       .row .ctl {
         flex: 0 0 auto;
         width: var(--fp-w);
-        /* Fill the height, but never stretch past half again as tall as wide.
-           Unbounded, seven buttons on a 889px-tall panel drew 93x200 slivers;
-           held at 1.25 they left a band of card showing above and below on a
-           two-row strip, which read as a thick grey border. */
-        height: min(100%, calc(var(--fp-w) * 1.5));
+        /* Square, and no taller than the card. Which of the two binds depends
+           on the strip: four buttons on a two-row tile are limited by height,
+           seven on a one-row tile by width. Give a strip more rows than its
+           buttons can use and the surplus shows as a band of card above and
+           below them, so size the tile to the buttons, not the other way. */
+        height: min(100%, var(--fp-w));
         max-width: none;
         /* The glyph is sized off the button, not the card. Off the card it
            tracked the card's short side, so a one-row row of seven buttons
@@ -170,6 +177,13 @@ export class FaceplateButtonsCard extends FaceplateCard<FaceplateButtonsConfig> 
       }
       .ctl ha-icon {
         --mdc-icon-size: clamp(14px, 55cqmin, 34px);
+      }
+      /* Tinted and outlined rather than filled: filled would read as "on",
+         which is the opposite of what this button does. */
+      .ctl.danger {
+        color: var(--error-color, #db4437);
+        background: rgba(219, 68, 55, 0.16);
+        box-shadow: inset 0 0 0 2px var(--error-color, #db4437);
       }
       .glyph {
         position: relative;
@@ -200,7 +214,12 @@ export class FaceplateButtonsCard extends FaceplateCard<FaceplateButtonsConfig> 
           ${buttons.map((spec, i) => {
             const on = this._isOn(spec);
             return html`<button
-              class=${classMap({ ctl: true, on, off: Boolean(spec.entity) && !on })}
+              class=${classMap({
+                ctl: true,
+                on,
+                off: Boolean(spec.entity) && !on,
+                danger: Boolean(spec.danger),
+              })}
               title=${spec.name ?? ""}
               aria-label=${spec.name ?? spec.icon ?? "button"}
               style=${on
