@@ -22,6 +22,12 @@ export interface FaceplateLightConfig extends FaceplateBaseConfig {
   use_light_color?: boolean;
   show_controls?: boolean;
   /**
+   * The on/off bulb beside the slider. Worth dropping where the slider is the
+   * whole point and zero already means off — a strip of brightness sliders
+   * reads as sliders, not as sliders each with a switch stapled to the end.
+   */
+  show_toggle?: boolean;
+  /**
    * The span of the light's output, as percentages, that the card's own 0-100%
    * covers. `max_brightness: 60` makes the card's full scale 60% output.
    *
@@ -302,16 +308,18 @@ export class FaceplateLightCard extends FaceplateCard<FaceplateLightConfig> {
             <!-- The badge toggles rather than just reporting. On a tile with
                  the button row hidden it is the only control left, and a lit
                  bulb that cannot be pressed is a confusing thing to show. -->
-            <button
+            ${this._show("show_toggle")
+              ? html`<button
               class=${classMap({ badge: true, on: this._on })}
               style=${styleMap(color ? { color } : {})}
               title=${this._on ? "Turn off" : "Turn on"}
               aria-label=${this._on ? "Turn off" : "Turn on"}
               .disabled=${unavailable}
               @click=${this._toggle}
-            >
-              <ha-icon class="bulb" icon=${icon}></ha-icon>
-            </button>
+                >
+                  <ha-icon class="bulb" icon=${icon}></ha-icon>
+                </button>`
+              : nothing}
           </div>
           ${this._show("show_state")
             ? html`<div class="lcd-center">

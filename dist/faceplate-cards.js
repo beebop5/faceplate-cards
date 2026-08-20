@@ -1361,16 +1361,16 @@ var ce=Object.defineProperty;var si=Object.getOwnPropertyDescriptor;var k=(o,i)=
             <!-- The badge toggles rather than just reporting. On a tile with
                  the button row hidden it is the only control left, and a lit
                  bulb that cannot be pressed is a confusing thing to show. -->
-            <button
+            ${this._show("show_toggle")?r`<button
               class=${f({badge:!0,on:this._on})}
               style=${M(l?{color:l}:{})}
               title=${this._on?"Turn off":"Turn on"}
               aria-label=${this._on?"Turn off":"Turn on"}
               .disabled=${s}
               @click=${this._toggle}
-            >
-              <ha-icon class="bulb" icon=${u}></ha-icon>
-            </button>
+                >
+                  <ha-icon class="bulb" icon=${u}></ha-icon>
+                </button>`:p}
           </div>
           ${this._show("show_state")?r`<div class="lcd-center">
                 ${s?r`<span class="off-label">Unavailable</span>`:this._on?c===void 0?r`<span class="readout">On</span>`:r`<span class="readout"
