@@ -1033,12 +1033,29 @@ export class FaceplateClimateCard extends LitElement {
       @container (min-height: 96px) {
         .layout-row .lcd {
           align-self: stretch;
+          /* Stacked, not side by side. Side by side the name and the setpoint
+             were competing for a pane barely 190px wide and ran over each
+             other. */
+          flex-direction: column;
+          align-items: flex-start;
+          justify-content: center;
+          gap: 2px;
         }
+        .layout-row .lcd-center {
+          order: 1;
+        }
+        .layout-row .lcd-top {
+          order: 2;
+          flex: none;
+          align-self: flex-start;
+        }
+        /* Exactly three across, so five controls read as 3 + 2 rather than
+           4 + 1 with a stranded button on its own line. */
         .layout-row .controls {
           flex-wrap: wrap;
           justify-content: flex-end;
           align-content: center;
-          max-width: 58%;
+          max-width: calc(3 * var(--faceplate-button-max, 42px) + 12px);
         }
         .layout-row .ctl {
           width: var(--faceplate-button-max, 42px);
