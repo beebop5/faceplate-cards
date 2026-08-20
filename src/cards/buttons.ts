@@ -130,7 +130,7 @@ export class FaceplateButtonsCard extends FaceplateCard<FaceplateButtonsConfig> 
            control and no content, so the frame earns less of the width here
            than it does around a readout, and the buttons take what it gives
            up. */
-        padding: 4px 6px;
+        padding: 2px 6px;
       }
       .row {
         display: flex;

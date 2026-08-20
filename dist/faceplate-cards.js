@@ -911,15 +911,38 @@ var ce=Object.defineProperty;var si=Object.getOwnPropertyDescriptor;var k=(o,i)=
         .layout-row .lcd-top {
           order: 2;
           flex: none;
-          align-self: flex-start;
+          align-self: stretch;
+          flex-direction: row;
+          align-items: baseline;
+          justify-content: space-between;
+          gap: 8px;
         }
-        /* Exactly three across, so five controls read as 3 + 2 rather than
-           4 + 1 with a stranded button on its own line. */
+        /* A real grid rather than a wrapped row: wrapping left the last two
+           buttons hanging off one end, which is the sort of thing that reads
+           as a bug even when it is only a shrug. Three columns, so five
+           controls sit in fixed positions with one empty cell. */
         .layout-row .controls {
-          flex-wrap: wrap;
-          justify-content: flex-end;
+          display: grid;
+          grid-template-columns: repeat(3, var(--faceplate-button-max, 42px));
+          justify-content: end;
           align-content: center;
-          max-width: calc(3 * var(--faceplate-button-max, 42px) + 12px);
+          gap: 5px;
+          max-width: none;
+        }
+        /* There is room for the fan, swing and preset readouts here, and the
+           one-line strip has to hide them. This is the layout that can afford
+           to say what the unit is actually doing. */
+        .layout-row .lcd-status {
+          display: flex;
+          order: 3;
+          flex-wrap: wrap;
+          gap: 4px 10px;
+          padding-top: 4px;
+          border-top: 1px solid var(--divider-color, rgba(127, 127, 127, 0.25));
+          align-self: stretch;
+        }
+        .layout-row .badge > span {
+          display: inline;
         }
         .layout-row .ctl {
           width: var(--faceplate-button-max, 42px);
@@ -1898,7 +1921,7 @@ var ce=Object.defineProperty;var si=Object.getOwnPropertyDescriptor;var k=(o,i)=
            control and no content, so the frame earns less of the width here
            than it does around a readout, and the buttons take what it gives
            up. */
-        padding: 4px 6px;
+        padding: 2px 6px;
       }
       .row {
         display: flex;
