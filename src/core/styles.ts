@@ -44,6 +44,14 @@ export const faceplateTokens = css`
 
 export const baseStyles = css`
   ha-card {
+    /* The border is drawn as an inset ring, not a border. Measured on the
+       panels, the view clips the first grid row's top hairline: every card
+       showed its native 1px border except the topmost card's top edge, which
+       is exactly where the eye starts. An inset ring lives inside the box
+       and cannot be clipped by an ancestor, whatever the row does. */
+    border: none;
+    box-shadow: inset 0 0 0 var(--ha-card-border-width, 1px)
+      var(--faceplate-border);
     padding: var(--faceplate-padding);
     display: flex;
     flex-direction: column;
