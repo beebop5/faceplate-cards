@@ -368,7 +368,11 @@ var ae=Object.defineProperty;var ti=Object.getOwnPropertyDescriptor;var x=(s,e)=
     border-radius: 16px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
     width: min(420px, 96vw);
-    max-height: min(84vh, 560px);
+    /* 100% of the backdrop's content box, which the backdrop's own padding has
+       already inset — so the sheet is as tall as it can be while its close
+       button still clears the top edge. A vh figure would double-count that
+       inset and scroll content that had room to sit still. */
+    max-height: min(100%, 560px);
     display: flex;
     flex-direction: column;
     overflow: hidden;
