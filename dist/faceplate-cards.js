@@ -1840,6 +1840,12 @@ var ce=Object.defineProperty;var si=Object.getOwnPropertyDescriptor;var k=(o,i)=
         box-shadow: none;
         padding: 2px 4px;
       }
+      /* Explicit, because the base card spaces its children apart: without
+         this "left" put the icon at one edge and the text at the other, which
+         is the one alignment nobody asks for. */
+      ha-card.align-left {
+        justify-content: flex-start;
+      }
       ha-card.align-center {
         justify-content: center;
       }
