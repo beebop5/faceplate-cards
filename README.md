@@ -4,8 +4,8 @@ A suite of Home Assistant dashboard cards styled like the faceplate of a
 physical appliance: an inset "LCD" readout with round tactile buttons beneath
 it.
 
-Every card is tuned for small screen real estate. A wall panel — a Sonoff
-NSPanel Pro is 480×480 — gives a dashboard no room to spare, so these are built
+Every card is tuned for small screen real estate. A wall panel — the 86mm
+Sonoff NSPanel Pro is 480×480 — gives a dashboard no room to spare, so these are built
 to be compact without becoming fiddly: a whole dashboard fits on one screen
 without scrolling, and every control stays big enough to hit with a thumb.
 Where something has to give, the readouts shed detail before the controls
@@ -274,10 +274,21 @@ npm test           # build + jsdom smoke tests across all seven cards
 The hardware this suite targets does not all run a current browser, and the
 gap is wide enough to change what you can write:
 
-| Panel | Android | WebView |
-| --- | --- | --- |
-| `px30_evb` (80mm) | 8.1 / SDK 27 | **Chromium 107** |
-| `PX30_Android11` (newer 80mm) | 11 / SDK 30 | Chromium 131 |
+| Panel | Screen | CSS viewport | Android | WebView |
+| --- | --- | --- | --- | --- |
+| 86mm square (`px30_evb`) | 480×480 @160dpi | 480×480 | 8.1 / SDK 27 | **Chromium 107** |
+| 86mm square, newer (`PX30_Android11`) | 480×480 @160dpi | 480×480 | 11 / SDK 30 | Chromium 131 |
+| 120mm US (`px30_evb`) | 750×1334 @240dpi | **500×889** | 8.1 / SDK 27 | **Chromium 107** |
+
+The 120mm is the one that catches people out. It is not simply a bigger
+square: it is portrait, and at 240dpi its `devicePixelRatio` is 1.5, so the
+1334 physical rows are only 889 CSS pixels. Sizing anything against the
+physical numbers makes it half again too large on that panel. It reports the
+same `px30_evb` model as the 86mm, so the model string cannot tell them apart
+— measure the viewport, not the device name.
+
+A portrait 500×889 has room to stack where the square does not, so a view built
+for the 86mm leaves the 120mm mostly empty rather than broken.
 
 Chromium 107 predates `color-mix()` (Chrome 111). Anything whose *meaning*
 rests on a `color-mix()` result silently collapses to its fallback there —

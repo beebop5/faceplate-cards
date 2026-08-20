@@ -235,17 +235,24 @@ BUNDLE_SOURCE
 /**
  * The panels this suite is built for, measured over adb rather than guessed.
  *
- *   px30_evb  480x480 @160dpi — the 80mm square panels
+ *   86mm square   480x480  @160dpi — CSS viewport 480x480
+ *   120mm US      750x1334 @240dpi — CSS viewport 500x889
  *
- * Density 160 means devicePixelRatio 1, so CSS pixels are physical pixels and
- * these numbers are the browser viewport exactly. The 80mm figure is the full
- * 480: `dumpsys window` reports an app area of 480x432, but the panel app runs
- * the WebView fullscreen, and a screenshot of a real panel shows the dashboard
- * using every row.
+ * At 160dpi devicePixelRatio is 1, so CSS pixels are physical pixels and the
+ * 86mm numbers are the browser viewport exactly. The 120mm is 240dpi, so its
+ * ratio is 1.5 and its 1334 physical rows are only 889 CSS pixels — sizing
+ * against the physical figure makes everything half again too large there.
+ * Both report model px30_evb, so the viewport is the only way to tell them
+ * apart.
+ *
+ * The 86mm figure is the full 480: `dumpsys window` reports an app area of
+ * 480x432, but the panel app runs the WebView fullscreen, and a screenshot of
+ * a real panel shows the dashboard using every row.
  */
 const PANELS = {
-  "nspanel-80": { width: 480, height: 480 },
-  // Not one of the three test panels — a wide check for the suite generally.
+  "nspanel-86": { width: 480, height: 480 },
+  "nspanel-120": { width: 500, height: 889 },
+  // Not a target device — a wide check on the suite generally.
   "wide": { width: 1280, height: 800 },
 };
 
@@ -284,7 +291,7 @@ const fanTile = (n, icon) => ({
 const SCENES = [
   {
     name: "kitchen-home",
-    panel: "nspanel-80",
+    panel: "nspanel-86",
     sections: [
       [
         {
@@ -328,7 +335,7 @@ const SCENES = [
   },
   {
     name: "kitchen-fan",
-    panel: "nspanel-80",
+    panel: "nspanel-86",
     sections: [
       [
         {
@@ -366,7 +373,7 @@ const SCENES = [
   },
   {
     name: "bedroom",
-    panel: "nspanel-80",
+    panel: "nspanel-86",
     sections: [
       [
         climate({
@@ -404,7 +411,7 @@ const SCENES = [
   {
     // The bedside dashboard is four sections; on a 480px panel they stack.
     name: "bedside",
-    panel: "nspanel-80",
+    panel: "nspanel-86",
     sections: [
       [
         climate({
@@ -573,10 +580,15 @@ const SCENES = [
   },
 ];
 
-// The large-panel kitchen scene renders the same cards as the 80mm one, so the
-// two screenshots differ only by viewport.
+// The wide and 120mm kitchen scenes render the same cards as the 86mm one, so
+// the screenshots differ only by viewport — which is the point, since that is
+// the whole difference between the panels.
+const kitchen86 = SCENES.find(
+  (s) => s.name === "kitchen-home" && s.panel === "nspanel-86",
+).sections;
 SCENES.find((s) => s.name === "kitchen-home" && s.panel === "wide").sections =
-  SCENES.find((s) => s.name === "kitchen-home" && s.panel === "nspanel-80").sections;
+  kitchen86;
+SCENES.push({ name: "kitchen-home", panel: "nspanel-120", sections: kitchen86 });
 
 /* ------------------------------------------------------------------- drive */
 
