@@ -68,6 +68,14 @@ export function handleAction(
 
     case "navigate": {
       if (!cfg.navigation_path) return;
+      // "back" returns to wherever the user came from — the one thing a
+      // shared dashboard cannot name in config, because kitchen and front
+      // both link here and each expects its own panel back. Falls through
+      // to a fresh load's empty history harmlessly.
+      if (cfg.navigation_path === "back") {
+        history.back();
+        return;
+      }
       history.pushState(null, "", cfg.navigation_path);
       fireEvent(node, "location-changed", { replace: false });
       return;
