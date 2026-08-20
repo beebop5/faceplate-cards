@@ -120,6 +120,11 @@ export class FaceplateButtonsCard extends FaceplateCard<FaceplateButtonsConfig> 
         container-type: size;
         min-height: 48px;
         justify-content: center;
+        /* Deliberately tighter than --faceplate-padding. A strip is all
+           control and no content, so the frame earns less of the width here
+           than it does around a readout, and the buttons take what it gives
+           up. */
+        padding: 6px;
       }
       .row {
         display: flex;
@@ -127,7 +132,7 @@ export class FaceplateButtonsCard extends FaceplateCard<FaceplateButtonsConfig> 
         /* Flush to the padding at both ends, so the visible frame is the
            padding and not whatever width the squares happened to leave over. */
         justify-content: space-between;
-        gap: 4px;
+        gap: 3px;
         width: 100%;
         height: 100%;
       }
@@ -144,7 +149,7 @@ export class FaceplateButtonsCard extends FaceplateCard<FaceplateButtonsConfig> 
          gave back half the space it had asked for. */
       .row {
         --fp-w: calc(
-          (100cqw - (var(--fp-count, 1) - 1) * 4px) / var(--fp-count, 1)
+          (100cqw - (var(--fp-count, 1) - 1) * 3px) / var(--fp-count, 1)
         );
       }
       .row .ctl {

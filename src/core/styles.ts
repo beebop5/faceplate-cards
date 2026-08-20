@@ -354,7 +354,11 @@ export const popupStyles = css`
      so a popup drawn inside one card paints under any card that follows it. */
   .popup-backdrop {
     border: none;
-    padding: 16px;
+    /* Generous vertical inset. The dialog is centred, so this is what keeps
+       its close button clear of the top edge — on a wall panel the top ~40px
+       is where Android's own pull-down lives, and a close button sitting in
+       it is a coin toss between closing the sheet and opening the shade. */
+    padding: 30px 16px;
     margin: auto;
     max-width: 100vw;
     max-height: 100vh;
@@ -378,7 +382,7 @@ export const popupStyles = css`
     border-radius: 16px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
     width: min(420px, 96vw);
-    max-height: min(90vh, 560px);
+    max-height: min(84vh, 560px);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -387,13 +391,13 @@ export const popupStyles = css`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 14px 8px;
+    padding: 16px 14px 8px;
     font-size: 15px;
     font-weight: 500;
   }
   .close {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     flex: none;
     border-radius: var(--faceplate-control-radius);
     display: flex;
