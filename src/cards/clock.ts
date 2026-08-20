@@ -231,6 +231,10 @@ export class FaceplateClockCard extends FaceplateCard<FaceplateClockConfig> {
           var(--fp-clock-fit, 76cqh),
           5.2cqw
         );
+        /* The bar is a single line of text, so the generous vertical padding
+           the stacked readouts want just draws a grey band above and below
+           it. Horizontal padding stays: the line needs its margins. */
+        padding: 2px 16px;
       }
       ha-card.row .time,
       ha-card.row .date,
