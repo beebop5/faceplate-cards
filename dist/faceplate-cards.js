@@ -156,7 +156,9 @@ var ce=Object.defineProperty;var ri=Object.getOwnPropertyDescriptor;var k=(o,i)=
     align-self: stretch;
     display: flex;
     justify-content: flex-start;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    min-width: 0;
     gap: 2px 6px;
     margin-top: 3px;
   }
@@ -491,7 +493,7 @@ var ce=Object.defineProperty;var ri=Object.getOwnPropertyDescriptor;var k=(o,i)=
       gap: 4px;
     }
   }
-`,x=[Si,Ei,Ti,Ci,zi,Mi,Oi];var qe={fan:"fan",vswing:"swing",hswing:"h-swing"},H=class extends E{constructor(){super(...arguments);this._popup=null;this._longPressed=!1;this._pressStart=()=>{this._longPressed=!1,window.clearTimeout(this._pressTimer),this._pressTimer=window.setTimeout(()=>{this._longPressed=!0,this._popup="config"},500)};this._pressEnd=()=>{window.clearTimeout(this._pressTimer)};this._powerPress=()=>{if(this._longPressed){this._longPressed=!1;return}if(!this._isOff){this._setHvacMode("off");return}let t=this._defaultMode();t?this._setHvacMode(t):this._popup="config"};this._cycleFan=t=>{if(this._longPressed){this._longPressed=!1;return}let{options:e,current:n}=t.source;if(!e.length){this._popup="config";return}let s=e[(e.indexOf(n??"")+1)%e.length];t.source.set(s)}}static async getConfigElement(){return await Promise.resolve().then(()=>(ae(),Ue)),document.createElement(vt)}static getStubConfig(t){return{entity:Object.keys(t.states).find(n=>n.startsWith("climate."))??""}}setConfig(t){if(!t.entity||!t.entity.startsWith("climate."))throw new Error("Please define a climate entity");this._config=t}getCardSize(){let t=this._config?.layout;return t==="row"?1:t==="compact"?2:3}getGridOptions(){return this._config?.layout==="row"?{columns:12,rows:1,min_columns:6,min_rows:1}:{columns:6,rows:3,min_columns:3,min_rows:2}}disconnectedCallback(){super.disconnectedCallback(),window.clearTimeout(this._commitTimer),window.clearTimeout(this._pressTimer)}get _stateObj(){return this._config&&this.hass?this.hass.states[this._config.entity]:void 0}_show(t){return this._config?.[t]!==!1}_selectSource(t){let e=this.hass?.states[t];if(!e)return;let s=t.split(".")[0]==="input_select"?"input_select":"select";return{options:e.attributes.options??[],current:e.state,set:a=>this.hass.callService(s,"select_option",{entity_id:t,option:a})}}_climateSource(t,e,n){let s=this._stateObj;if(s?.attributes[t]?.length)return{options:s.attributes[t],current:s.attributes[e],set:a=>this.hass.callService("climate",n,{entity_id:s.entity_id,[e]:a})}}_fanSections(){let t=[];if(this._show("show_fan")){let n=this._climateSource("fan_modes","fan_mode","set_fan_mode");n&&t.push({key:"fan",title:"Fan speed",segmentIcon:qt(n.current??""),icon:qt,source:n})}let e=this._show("show_horizontal_swing")?this._config?.horizontal_swing_entity?this._selectSource(this._config.horizontal_swing_entity):this._climateSource("swing_horizontal_modes","swing_horizontal_mode","set_swing_horizontal_mode"):void 0;if(this._show("show_vertical_swing")){let n=this._config?.vertical_swing_entity?this._selectSource(this._config.vertical_swing_entity):this._climateSource("swing_modes","swing_mode","set_swing_mode");if(n?.options.length){let s=!e?.options.length&&n.options.some(l=>/horiz|both/i.test(l)),a=s?de:l=>xt(l,!1);t.push({key:"vswing",title:s?"Swing":"Vertical swing",segmentIcon:a(n.current??""),icon:a,source:n})}}return e?.options.length&&t.push({key:"hswing",title:"Horizontal swing",segmentIcon:xt(e.current??"",!0),icon:n=>xt(n,!0),source:e}),t}_hasSettings(){return this._show("show_settings")?!!(this._stateObj?.attributes.preset_modes?.length||this._config?.setting_entities?.length):!1}get _isOff(){return this._stateObj?.state==="off"}get _step(){return this._config?.step??this._stateObj?.attributes.target_temp_step??.5}get _targetTemp(){return this._localTarget??this._stateObj?.attributes.temperature}get _currentTemp(){let t=this._config?.current_temperature_entity;if(t){let e=this.hass?.states[t],n=e?parseFloat(e.state):NaN;return Number.isFinite(n)?n:void 0}return this._stateObj?.attributes.current_temperature}get _outdoorTemp(){let t=this._config?.outdoor_temperature_entity;if(!t)return;let e=this.hass?.states[t],n=e?parseFloat(e.state):NaN;return Number.isFinite(n)?n:void 0}get _unit(){return this.hass?.config.unit_system.temperature??"\xB0C"}_modeName(t){return this.hass?.localize(`component.climate.entity_component._.state.${t}`)||L(t)}willUpdate(){this._localTarget!==void 0&&this._stateObj?.attributes.temperature===this._localTarget&&(this._localTarget=void 0)}_adjustTemp(t){let e=this._stateObj;if(!e)return;let n=e.attributes,s=this._targetTemp??n.min_temp??20,a=n.min_temp??7,l=n.max_temp??35,c=this._step,u=Math.min(l,Math.max(a,s+t*c)),h=`${c}`.split(".")[1]?.length??0;this._localTarget=parseFloat(u.toFixed(h)),window.clearTimeout(this._commitTimer),this._commitTimer=window.setTimeout(()=>{this.hass.callService("climate","set_temperature",{entity_id:e.entity_id,temperature:this._localTarget})},700)}_availableModes(){let t=this._config?.hvac_modes;return[...this._stateObj?.attributes.hvac_modes??[]].filter(e=>!t?.length||t.includes(e)).sort((e,n)=>Ut.indexOf(e)-Ut.indexOf(n))}_defaultMode(){let t=this._availableModes().filter(n=>n!=="off"),e=this._config?.default_mode;return e&&t.includes(e)?e:t.length===1?t[0]:void 0}_setHvacMode(t){this.hass.callService("climate","set_hvac_mode",{entity_id:this._config.entity,hvac_mode:t})}render(){if(!this._config||!this.hass)return p;let t=this._stateObj;if(!t)return r`<ha-card class="error">
+`,x=[Si,Ei,Ti,Ci,zi,Mi,Oi];var qe={fan:"fan",vswing:"swing",hswing:"h-swing"},P=class extends E{constructor(){super(...arguments);this._popup=null;this._longPressed=!1;this._pressStart=()=>{this._longPressed=!1,window.clearTimeout(this._pressTimer),this._pressTimer=window.setTimeout(()=>{this._longPressed=!0,this._popup="config"},500)};this._pressEnd=()=>{window.clearTimeout(this._pressTimer)};this._powerPress=()=>{if(this._longPressed){this._longPressed=!1;return}if(!this._isOff){this._setHvacMode("off");return}let t=this._defaultMode();t?this._setHvacMode(t):this._popup="config"};this._cycleFan=t=>{if(this._longPressed){this._longPressed=!1;return}let{options:e,current:n}=t.source;if(!e.length){this._popup="config";return}let s=e[(e.indexOf(n??"")+1)%e.length];t.source.set(s)}}static async getConfigElement(){return await Promise.resolve().then(()=>(ae(),Ue)),document.createElement(vt)}static getStubConfig(t){return{entity:Object.keys(t.states).find(n=>n.startsWith("climate."))??""}}setConfig(t){if(!t.entity||!t.entity.startsWith("climate."))throw new Error("Please define a climate entity");this._config=t}getCardSize(){let t=this._config?.layout;return t==="row"?1:t==="compact"?2:3}getGridOptions(){return this._config?.layout==="row"?{columns:12,rows:1,min_columns:6,min_rows:1}:{columns:6,rows:3,min_columns:3,min_rows:2}}disconnectedCallback(){super.disconnectedCallback(),window.clearTimeout(this._commitTimer),window.clearTimeout(this._pressTimer)}get _stateObj(){return this._config&&this.hass?this.hass.states[this._config.entity]:void 0}_show(t){return this._config?.[t]!==!1}_selectSource(t){let e=this.hass?.states[t];if(!e)return;let s=t.split(".")[0]==="input_select"?"input_select":"select";return{options:e.attributes.options??[],current:e.state,set:a=>this.hass.callService(s,"select_option",{entity_id:t,option:a})}}_climateSource(t,e,n){let s=this._stateObj;if(s?.attributes[t]?.length)return{options:s.attributes[t],current:s.attributes[e],set:a=>this.hass.callService("climate",n,{entity_id:s.entity_id,[e]:a})}}_fanSections(){let t=[];if(this._show("show_fan")){let n=this._climateSource("fan_modes","fan_mode","set_fan_mode");n&&t.push({key:"fan",title:"Fan speed",segmentIcon:qt(n.current??""),icon:qt,source:n})}let e=this._show("show_horizontal_swing")?this._config?.horizontal_swing_entity?this._selectSource(this._config.horizontal_swing_entity):this._climateSource("swing_horizontal_modes","swing_horizontal_mode","set_swing_horizontal_mode"):void 0;if(this._show("show_vertical_swing")){let n=this._config?.vertical_swing_entity?this._selectSource(this._config.vertical_swing_entity):this._climateSource("swing_modes","swing_mode","set_swing_mode");if(n?.options.length){let s=!e?.options.length&&n.options.some(l=>/horiz|both/i.test(l)),a=s?de:l=>xt(l,!1);t.push({key:"vswing",title:s?"Swing":"Vertical swing",segmentIcon:a(n.current??""),icon:a,source:n})}}return e?.options.length&&t.push({key:"hswing",title:"Horizontal swing",segmentIcon:xt(e.current??"",!0),icon:n=>xt(n,!0),source:e}),t}_hasSettings(){return this._show("show_settings")?!!(this._stateObj?.attributes.preset_modes?.length||this._config?.setting_entities?.length):!1}get _isOff(){return this._stateObj?.state==="off"}get _step(){return this._config?.step??this._stateObj?.attributes.target_temp_step??.5}get _targetTemp(){return this._localTarget??this._stateObj?.attributes.temperature}get _currentTemp(){let t=this._config?.current_temperature_entity;if(t){let e=this.hass?.states[t],n=e?parseFloat(e.state):NaN;return Number.isFinite(n)?n:void 0}return this._stateObj?.attributes.current_temperature}get _outdoorTemp(){let t=this._config?.outdoor_temperature_entity;if(!t)return;let e=this.hass?.states[t],n=e?parseFloat(e.state):NaN;return Number.isFinite(n)?n:void 0}get _unit(){return this.hass?.config.unit_system.temperature??"\xB0C"}_modeName(t){return this.hass?.localize(`component.climate.entity_component._.state.${t}`)||L(t)}willUpdate(){this._localTarget!==void 0&&this._stateObj?.attributes.temperature===this._localTarget&&(this._localTarget=void 0)}_adjustTemp(t){let e=this._stateObj;if(!e)return;let n=e.attributes,s=this._targetTemp??n.min_temp??20,a=n.min_temp??7,l=n.max_temp??35,c=this._step,u=Math.min(l,Math.max(a,s+t*c)),h=`${c}`.split(".")[1]?.length??0;this._localTarget=parseFloat(u.toFixed(h)),window.clearTimeout(this._commitTimer),this._commitTimer=window.setTimeout(()=>{this.hass.callService("climate","set_temperature",{entity_id:e.entity_id,temperature:this._localTarget})},700)}_availableModes(){let t=this._config?.hvac_modes;return[...this._stateObj?.attributes.hvac_modes??[]].filter(e=>!t?.length||t.includes(e)).sort((e,n)=>Ut.indexOf(e)-Ut.indexOf(n))}_defaultMode(){let t=this._availableModes().filter(n=>n!=="off"),e=this._config?.default_mode;return e&&t.includes(e)?e:t.length===1?t[0]:void 0}_setHvacMode(t){this.hass.callService("climate","set_hvac_mode",{entity_id:this._config.entity,hvac_mode:t})}render(){if(!this._config||!this.hass)return p;let t=this._stateObj;if(!t)return r`<ha-card class="error">
         Entity not found: ${this._config.entity}
       </ha-card>`;let e=t.state==="unavailable",n=t.state,s=X[n]??X.off,a=this._fanSections(),l=a.find(b=>b.key==="fan"),c=this._config.layout??"standard",u=this._config.name??t.attributes.friendly_name??"",h=t.attributes.preset_mode,m=this._show("show_controls"),w=this._isOff||e;return r`
       <ha-card
@@ -747,7 +749,7 @@ var ce=Object.defineProperty;var ri=Object.getOwnPropertyDescriptor;var k=(o,i)=
       </div>`}return r`<div class="row">
       <span class="row-name">${l}</span>
       <span>${this.hass.formatEntityState?.(s)??s.state}</span>
-    </div>`}};H.styles=[...x,g`
+    </div>`}};P.styles=[...x,g`
       .temps {
         display: flex;
         align-items: center;
@@ -895,6 +897,12 @@ var ce=Object.defineProperty;var ri=Object.getOwnPropertyDescriptor;var k=(o,i)=
         flex: none;
         gap: 6px;
       }
+      /* Display-only cards: the reading holds the left edge and the state
+         badge the right, so neither moves when the other changes width. */
+      .display-only .lcd-center {
+        align-self: stretch;
+        justify-content: space-between;
+      }
       .layout-row .lcd-status {
         display: none;
       }
@@ -930,6 +938,8 @@ var ce=Object.defineProperty;var ri=Object.getOwnPropertyDescriptor;var k=(o,i)=
         }
         .layout-row .lcd-center {
           order: 1;
+          align-self: stretch;
+          justify-content: space-between;
         }
         .layout-row .lcd-top {
           order: 2;
@@ -1069,7 +1079,7 @@ var ce=Object.defineProperty;var ri=Object.getOwnPropertyDescriptor;var k=(o,i)=
           gap: 0 8px;
         }
       }
-    `],d([y({attribute:!1})],H.prototype,"hass",2),d([v()],H.prototype,"_config",2),d([v()],H.prototype,"_popup",2),d([Ne("dialog.popup-backdrop")],H.prototype,"_dialogEl",2),d([v()],H.prototype,"_localTarget",2),H=d([_(yt)],H);ae();C();z();C();z();var $=class extends E{static{this.styles=x}static{this.requiresEntity=!0}setConfig(i){let t=this.constructor;if(t.requiresEntity){let e=t.entityDomains,n=i.entity?.split(".")[0];if(!i.entity||e&&!e.includes(n))throw new Error(e?`Please define a ${e.join(" or ")} entity`:"Please define an entity")}this._config=i}getCardSize(){return 2}get _stateObj(){return this._config?.entity&&this.hass?this.hass.states[this._config.entity]:void 0}_show(i){return this._config?.[i]!==!1}_missingEntity(){return r`<ha-card class="error">
+    `],d([y({attribute:!1})],P.prototype,"hass",2),d([v()],P.prototype,"_config",2),d([v()],P.prototype,"_popup",2),d([Ne("dialog.popup-backdrop")],P.prototype,"_dialogEl",2),d([v()],P.prototype,"_localTarget",2),P=d([_(yt)],P);ae();C();z();C();z();var $=class extends E{static{this.styles=x}static{this.requiresEntity=!0}setConfig(i){let t=this.constructor;if(t.requiresEntity){let e=t.entityDomains,n=i.entity?.split(".")[0];if(!i.entity||e&&!e.includes(n))throw new Error(e?`Please define a ${e.join(" or ")} entity`:"Please define an entity")}this._config=i}getCardSize(){return 2}get _stateObj(){return this._config?.entity&&this.hass?this.hass.states[this._config.entity]:void 0}_show(i){return this._config?.[i]!==!1}_missingEntity(){return r`<ha-card class="error">
       Entity not found: ${this._config?.entity}
     </ha-card>`}_guard(){return!this._config||!this.hass?p:this.constructor.requiresEntity&&!this._stateObj?this._missingEntity():null}};d([y({attribute:!1})],$.prototype,"hass",2),d([v()],$.prototype,"_config",2);C();z();var S=class extends E{constructor(){super(...arguments);this.labels={};this.helpers={};this.defaults={}}setConfig(t){this._config=t}render(){return!this.hass||!this._config?p:r`
       <ha-form
@@ -1080,7 +1090,7 @@ var ce=Object.defineProperty;var ri=Object.getOwnPropertyDescriptor;var k=(o,i)=
         .computeHelper=${t=>this.helpers[t.name]}
         @value-changed=${this._valueChanged}
       ></ha-form>
-    `}_valueChanged(t){t.stopPropagation();let e={...t.detail.value};for(let[n,s]of Object.entries(e))(s===""||Array.isArray(s)&&s.length===0)&&delete e[n];this.dispatchEvent(new CustomEvent("config-changed",{detail:{config:e},bubbles:!0,composed:!0}))}};d([y({attribute:!1})],S.prototype,"hass",2),d([v()],S.prototype,"_config",2);var Ve={type:"expandable",title:"Actions",icon:"mdi:gesture-tap",schema:[{name:"tap_action",selector:{ui_action:{}}},{name:"hold_action",selector:{ui_action:{}}},{name:"double_tap_action",selector:{ui_action:{}}}]},Mt={tap_action:"Tap action",hold_action:"Hold action",double_tap_action:"Double tap action"};var Ii={lock:"lock",cover:"cover",group:"homeassistant"};function re(o,i,t){o.dispatchEvent(new CustomEvent(i,{detail:t,bubbles:!0,composed:!0}))}function I(o,i){re(o,"hass-more-info",{entityId:i})}function j(o,i,t,e){let n=`${e}_action`,s=e==="tap"?{action:t.entity?"toggle":"none"}:e==="hold"?{action:t.entity?"more-info":"none"}:{action:"none"},a=t[n]??s;switch(a.action){case"none":return;case"more-info":{let l=a.entity??t.entity;l&&I(o,l);return}case"toggle":{let l=a.entity??t.entity;if(!l)return;let c=l.split(".")[0];i.callService(Ii[c]??"homeassistant","toggle",{entity_id:l});return}case"navigate":{if(!a.navigation_path)return;history.pushState(null,"",a.navigation_path),re(o,"location-changed",{replace:!1});return}case"url":{a.url_path&&window.open(a.url_path,"_blank","noreferrer");return}case"assist":re(o,"show-dialog",{dialogTag:"ha-voice-command-dialog",dialogImport:()=>Promise.resolve(),dialogParams:{}});return;case"call-service":case"perform-action":{let l=a.perform_action??a.service;if(!l||!l.includes("."))return;let[c,u]=l.split(".",2);i.callService(c,u,a.data??a.service_data??{},a.target);return}}}var it=class{constructor(i,t={}){this._run=i;this._opts=t;this._held=!1;this._lastTap=0;this.down=()=>{this._held=!1,this._opts.hasHold&&(window.clearTimeout(this._timer),this._timer=window.setTimeout(()=>{this._held=!0,this._run("hold")},this._opts.holdMs??500))};this.up=()=>{window.clearTimeout(this._timer)};this.click=i=>{if(i.stopPropagation(),this._held){this._held=!1;return}if(!this._opts.hasDoubleTap){this._run("tap");return}let t=Date.now();if(t-this._lastTap<300){window.clearTimeout(this._tapTimer),this._lastTap=0,this._run("double_tap");return}this._lastTap=t,this._tapTimer=window.setTimeout(()=>this._run("tap"),300)}}destroy(){window.clearTimeout(this._timer),window.clearTimeout(this._tapTimer)}};function le(o){return o.replace(/[_-]+/g," ").replace(/\b\w/g,i=>i.toUpperCase())}function P(o,i,t=1){return i.toLocaleString(o?.language??"en",{maximumFractionDigits:t})}function Ot(o,i){if(!i)return"";if(o?.formatEntityState)try{return o.formatEntityState(i)}catch{}let t=i.entity_id.split(".")[0];return o?.localize(`component.${t}.entity_component._.state.${i.state}`)||le(i.state)}function N(o,i){return i??o?.attributes.friendly_name??o?.entity_id??""}var We="faceplate-button-card",Ge="faceplate-button-card-editor",nt=class extends ${static async getConfigElement(){return document.createElement(Ge)}static getStubConfig(){return{show_name:!0,show_icon:!0,tap_action:{action:"toggle"}}}getCardSize(){return 1}getGridOptions(){return{columns:4,rows:1,min_columns:2,min_rows:1}}setConfig(i){super.setConfig(i),this._handler?.destroy(),this._handler=new it(t=>this._run(t),{hasHold:!!i.hold_action||!!i.entity,hasDoubleTap:!!i.double_tap_action})}disconnectedCallback(){super.disconnectedCallback(),this._handler?.destroy()}_run(i){this.hass&&this._config&&j(this,this.hass,this._config,i)}render(){let i=this._guard();if(i!==null)return i;let t=this._config,e=this._stateObj,n=e?.state==="on"||e?.state==="open",s=e?.state==="unavailable",a=N(e,t.name),l=t.icon??e?.attributes.icon??this._domainIcon(n),c=t.show_name!==!1&&!!a,u=!!(t.show_state&&e);return r`
+    `}_valueChanged(t){t.stopPropagation();let e={...t.detail.value};for(let[n,s]of Object.entries(e))(s===""||Array.isArray(s)&&s.length===0)&&delete e[n];this.dispatchEvent(new CustomEvent("config-changed",{detail:{config:e},bubbles:!0,composed:!0}))}};d([y({attribute:!1})],S.prototype,"hass",2),d([v()],S.prototype,"_config",2);var Ve={type:"expandable",title:"Actions",icon:"mdi:gesture-tap",schema:[{name:"tap_action",selector:{ui_action:{}}},{name:"hold_action",selector:{ui_action:{}}},{name:"double_tap_action",selector:{ui_action:{}}}]},Mt={tap_action:"Tap action",hold_action:"Hold action",double_tap_action:"Double tap action"};var Ii={lock:"lock",cover:"cover",group:"homeassistant"};function re(o,i,t){o.dispatchEvent(new CustomEvent(i,{detail:t,bubbles:!0,composed:!0}))}function I(o,i){re(o,"hass-more-info",{entityId:i})}function j(o,i,t,e){let n=`${e}_action`,s=e==="tap"?{action:t.entity?"toggle":"none"}:e==="hold"?{action:t.entity?"more-info":"none"}:{action:"none"},a=t[n]??s;switch(a.action){case"none":return;case"more-info":{let l=a.entity??t.entity;l&&I(o,l);return}case"toggle":{let l=a.entity??t.entity;if(!l)return;let c=l.split(".")[0];i.callService(Ii[c]??"homeassistant","toggle",{entity_id:l});return}case"navigate":{if(!a.navigation_path)return;history.pushState(null,"",a.navigation_path),re(o,"location-changed",{replace:!1});return}case"url":{a.url_path&&window.open(a.url_path,"_blank","noreferrer");return}case"assist":re(o,"show-dialog",{dialogTag:"ha-voice-command-dialog",dialogImport:()=>Promise.resolve(),dialogParams:{}});return;case"call-service":case"perform-action":{let l=a.perform_action??a.service;if(!l||!l.includes("."))return;let[c,u]=l.split(".",2);i.callService(c,u,a.data??a.service_data??{},a.target);return}}}var it=class{constructor(i,t={}){this._run=i;this._opts=t;this._held=!1;this._lastTap=0;this.down=()=>{this._held=!1,this._opts.hasHold&&(window.clearTimeout(this._timer),this._timer=window.setTimeout(()=>{this._held=!0,this._run("hold")},this._opts.holdMs??500))};this.up=()=>{window.clearTimeout(this._timer)};this.click=i=>{if(i.stopPropagation(),this._held){this._held=!1;return}if(!this._opts.hasDoubleTap){this._run("tap");return}let t=Date.now();if(t-this._lastTap<300){window.clearTimeout(this._tapTimer),this._lastTap=0,this._run("double_tap");return}this._lastTap=t,this._tapTimer=window.setTimeout(()=>this._run("tap"),300)}}destroy(){window.clearTimeout(this._timer),window.clearTimeout(this._tapTimer)}};function le(o){return o.replace(/[_-]+/g," ").replace(/\b\w/g,i=>i.toUpperCase())}function H(o,i,t=1){return i.toLocaleString(o?.language??"en",{maximumFractionDigits:t})}function Ot(o,i){if(!i)return"";if(o?.formatEntityState)try{return o.formatEntityState(i)}catch{}let t=i.entity_id.split(".")[0];return o?.localize(`component.${t}.entity_component._.state.${i.state}`)||le(i.state)}function N(o,i){return i??o?.attributes.friendly_name??o?.entity_id??""}var We="faceplate-button-card",Ge="faceplate-button-card-editor",nt=class extends ${static async getConfigElement(){return document.createElement(Ge)}static getStubConfig(){return{show_name:!0,show_icon:!0,tap_action:{action:"toggle"}}}getCardSize(){return 1}getGridOptions(){return{columns:4,rows:1,min_columns:2,min_rows:1}}setConfig(i){super.setConfig(i),this._handler?.destroy(),this._handler=new it(t=>this._run(t),{hasHold:!!i.hold_action||!!i.entity,hasDoubleTap:!!i.double_tap_action})}disconnectedCallback(){super.disconnectedCallback(),this._handler?.destroy()}_run(i){this.hass&&this._config&&j(this,this.hass,this._config,i)}render(){let i=this._guard();if(i!==null)return i;let t=this._config,e=this._stateObj,n=e?.state==="on"||e?.state==="open",s=e?.state==="unavailable",a=N(e,t.name),l=t.icon??e?.attributes.icon??this._domainIcon(n),c=t.show_name!==!1&&!!a,u=!!(t.show_state&&e);return r`
       <ha-card
         class=${f({unavailable:s,"with-name":c,"with-state":u})}
       >
@@ -1548,11 +1558,14 @@ var ce=Object.defineProperty;var ri=Object.getOwnPropertyDescriptor;var k=(o,i)=
               </div>`:p}
         </div>
       </ha-card>
-    `}_weather(){if(!this._weatherWanted)return;let t=this.hass?.states[this._config.weather_entity];if(!t)return;let e=this._forecast[0],n=e?.condition??t.state,s=e?.temperature,a=e?.templow;return r`<span class="weather">
+    `}_weather(){if(!this._weatherWanted)return;let t=this.hass?.states[this._config.weather_entity];if(!t)return;let e=this._forecast[0],n=e?.condition??t.state,s=e?.temperature,a=e?.templow,l=t.attributes?.temperature;return r`<span class="weather">
       <ha-icon icon=${Dt(n)}></ha-icon>
+      ${l===void 0?p:r`<span class="temp-now"
+            >${H(this.hass,l,0)}°</span
+          >`}
       <span class="temps">
-        ${s===void 0?"--":P(this.hass,s,0)}°${a===void 0?p:r`<span class="temp-low"
-              >/${P(this.hass,a,0)}°</span
+        ${s===void 0?"--":H(this.hass,s,0)}°${a===void 0?p:r`<span class="temp-low"
+              >/${H(this.hass,a,0)}°</span
             >`}
       </span>
     </span>`}};F.requiresEntity=!1,F.styles=[...x,g`
@@ -1640,7 +1653,7 @@ var ce=Object.defineProperty;var ri=Object.getOwnPropertyDescriptor;var k=(o,i)=
          difference between a readable clock and a token one. */
       ha-card.row .lcd {
         flex-direction: row;
-        align-items: baseline;
+        align-items: center;
         justify-content: space-between;
         gap: 10px;
         flex-wrap: nowrap;
@@ -1672,8 +1685,18 @@ var ce=Object.defineProperty;var ri=Object.getOwnPropertyDescriptor;var k=(o,i)=
         flex: 1 1 0;
         min-width: 0;
         display: flex;
-        align-items: baseline;
+        align-items: center;
+        gap: 4px;
         justify-content: flex-end;
+      }
+      ha-card.row .temp-now {
+        font-size: 1em;
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
+      }
+      ha-card.row .temps {
+        font-size: 0.68em;
+        color: var(--secondary-text-color);
       }
       ha-card.row.with-sub,
       ha-card.row.with-label,
@@ -1689,8 +1712,8 @@ var ce=Object.defineProperty;var ri=Object.getOwnPropertyDescriptor;var k=(o,i)=
       ha-card.row .lcd {
         font-size: min(
           var(--faceplate-clock-size, 44px),
-          var(--fp-clock-fit, 68cqh),
-          4.6cqw
+          var(--fp-clock-fit, 72cqh),
+          5.4cqw
         );
         /* The bar is a single line of text, so the generous vertical padding
            the stacked readouts want just draws a grey band above and below
@@ -1773,7 +1796,7 @@ var ce=Object.defineProperty;var ri=Object.getOwnPropertyDescriptor;var k=(o,i)=
                 </div>
                 <div class="lcd-center">
                   <span class="readout">
-                    ${typeof l=="number"?P(this.hass,l,0):"--"}<span class="unit">${a}</span>
+                    ${typeof l=="number"?H(this.hass,l,0):"--"}<span class="unit">${a}</span>
                   </span>
                   <span class="badge">
                     <ha-icon
@@ -1789,15 +1812,15 @@ var ce=Object.defineProperty;var ri=Object.getOwnPropertyDescriptor;var k=(o,i)=
                     <span class="slot-label">${this._slotLabel(h)}</span>
                     <ha-icon icon=${this._icon(h.condition)}></ha-icon>
                     <span class="slot-temps">
-                      ${h.temperature===void 0?"--":P(this.hass,h.temperature,0)}°${h.templow===void 0?p:r`<span class="slot-low"
-                            >/${P(this.hass,h.templow,0)}°</span
+                      ${h.temperature===void 0?"--":H(this.hass,h.temperature,0)}°${h.templow===void 0?p:r`<span class="slot-low"
+                            >/${H(this.hass,h.templow,0)}°</span
                           >`}
                     </span>
                   </div>`)}
               </div>`:p}
         </div>
       </ha-card>
-    `}_secondary(t){let e=this._config?.secondary_info??["humidity","apparent","wind","pressure"].filter(s=>this._hasReading(t,s)).slice(0,1),n=[];for(let s of e)s==="humidity"&&t.attributes.humidity!==void 0&&n.push(`Humidity ${Math.round(t.attributes.humidity)}%`),s==="wind"&&t.attributes.wind_speed!==void 0&&n.push(`Wind ${P(this.hass,t.attributes.wind_speed,0)} ${t.attributes.wind_speed_unit??""}`.trim()),s==="pressure"&&t.attributes.pressure!==void 0&&n.push(`${P(this.hass,t.attributes.pressure,0)} ${t.attributes.pressure_unit??""}`.trim()),s==="apparent"&&t.attributes.apparent_temperature!==void 0&&n.push(`Feels ${P(this.hass,t.attributes.apparent_temperature,0)}\xB0`);return n.join("   ")}_hasReading(t,e){let n={humidity:"humidity",wind:"wind_speed",pressure:"pressure",apparent:"apparent_temperature"}[e];return t.attributes[n]!==void 0}};Y.entityDomains=["weather"],Y.styles=[...x,g`
+    `}_secondary(t){let e=this._config?.secondary_info??["humidity","apparent","wind","pressure"].filter(s=>this._hasReading(t,s)).slice(0,1),n=[];for(let s of e)s==="humidity"&&t.attributes.humidity!==void 0&&n.push(`Humidity ${Math.round(t.attributes.humidity)}%`),s==="wind"&&t.attributes.wind_speed!==void 0&&n.push(`Wind ${H(this.hass,t.attributes.wind_speed,0)} ${t.attributes.wind_speed_unit??""}`.trim()),s==="pressure"&&t.attributes.pressure!==void 0&&n.push(`${H(this.hass,t.attributes.pressure,0)} ${t.attributes.pressure_unit??""}`.trim()),s==="apparent"&&t.attributes.apparent_temperature!==void 0&&n.push(`Feels ${H(this.hass,t.attributes.apparent_temperature,0)}\xB0`);return n.join("   ")}_hasReading(t,e){let n={humidity:"humidity",wind:"wind_speed",pressure:"pressure",apparent:"apparent_temperature"}[e];return t.attributes[n]!==void 0}};Y.entityDomains=["weather"],Y.styles=[...x,g`
       ha-card {
         cursor: pointer;
       }

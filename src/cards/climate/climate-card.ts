@@ -1016,6 +1016,12 @@ export class FaceplateClimateCard extends LitElement {
         flex: none;
         gap: 6px;
       }
+      /* Display-only cards: the reading holds the left edge and the state
+         badge the right, so neither moves when the other changes width. */
+      .display-only .lcd-center {
+        align-self: stretch;
+        justify-content: space-between;
+      }
       .layout-row .lcd-status {
         display: none;
       }
@@ -1051,6 +1057,8 @@ export class FaceplateClimateCard extends LitElement {
         }
         .layout-row .lcd-center {
           order: 1;
+          align-self: stretch;
+          justify-content: space-between;
         }
         .layout-row .lcd-top {
           order: 2;

@@ -163,7 +163,9 @@ export const lcdStyles = css`
     align-self: stretch;
     display: flex;
     justify-content: flex-start;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    min-width: 0;
     gap: 2px 6px;
     margin-top: 3px;
   }

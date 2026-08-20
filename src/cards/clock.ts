@@ -209,7 +209,7 @@ export class FaceplateClockCard extends FaceplateCard<FaceplateClockConfig> {
          difference between a readable clock and a token one. */
       ha-card.row .lcd {
         flex-direction: row;
-        align-items: baseline;
+        align-items: center;
         justify-content: space-between;
         gap: 10px;
         flex-wrap: nowrap;
@@ -241,8 +241,18 @@ export class FaceplateClockCard extends FaceplateCard<FaceplateClockConfig> {
         flex: 1 1 0;
         min-width: 0;
         display: flex;
-        align-items: baseline;
+        align-items: center;
+        gap: 4px;
         justify-content: flex-end;
+      }
+      ha-card.row .temp-now {
+        font-size: 1em;
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
+      }
+      ha-card.row .temps {
+        font-size: 0.68em;
+        color: var(--secondary-text-color);
       }
       ha-card.row.with-sub,
       ha-card.row.with-label,
@@ -258,8 +268,8 @@ export class FaceplateClockCard extends FaceplateCard<FaceplateClockConfig> {
       ha-card.row .lcd {
         font-size: min(
           var(--faceplate-clock-size, 44px),
-          var(--fp-clock-fit, 68cqh),
-          4.6cqw
+          var(--fp-clock-fit, 72cqh),
+          5.4cqw
         );
         /* The bar is a single line of text, so the generous vertical padding
            the stacked readouts want just draws a grey band above and below
@@ -421,9 +431,17 @@ export class FaceplateClockCard extends FaceplateCard<FaceplateClockConfig> {
     const condition = today?.condition ?? stateObj.state;
     const high = today?.temperature;
     const low = today?.templow;
+    // What it is like outside right now leads; the day's span follows,
+    // smaller. The forecast can wait — the door cannot.
+    const current = stateObj.attributes?.temperature;
 
     return html`<span class="weather">
       <ha-icon icon=${weatherIcon(condition)}></ha-icon>
+      ${current === undefined
+        ? nothing
+        : html`<span class="temp-now"
+            >${formatNumber(this.hass, current, 0)}°</span
+          >`}
       <span class="temps">
         ${high === undefined ? "--" : formatNumber(this.hass, high, 0)}°${low ===
         undefined
