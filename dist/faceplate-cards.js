@@ -816,10 +816,14 @@ var ae=Object.defineProperty;var ti=Object.getOwnPropertyDescriptor;var x=(s,e)=
            on a two-row tile drew a thin ribbon of content in a tall box and
            looked like a mistake. The floors are the old fixed values, so a
            one-row strip is unchanged. */
-        --faceplate-readout-size: clamp(26px, 34cqh, 56px);
-        --faceplate-button-size: clamp(38px, 50cqh, 78px);
-        --faceplate-button-max: clamp(42px, 54cqh, 84px);
-        --faceplate-icon-size: clamp(20px, 26cqh, 40px);
+        /* Height alone is the wrong bound. The controls are a nowrap row, so
+           on a tall tile they grew until five buttons were wider than the card
+           and slid over the readout. Whichever of the two axes runs out first
+           wins; 11cqw is the share five buttons and the readout can agree on. */
+        --faceplate-readout-size: clamp(26px, min(34cqh, 9cqw), 56px);
+        --faceplate-button-size: clamp(38px, min(50cqh, 11cqw), 78px);
+        --faceplate-button-max: clamp(42px, min(54cqh, 12cqw), 84px);
+        --faceplate-icon-size: clamp(20px, min(26cqh, 6cqw), 40px);
         container-type: size;
         /* If this ever lands somewhere its height is indefinite, size
            containment would collapse it to nothing; this keeps it visible. */
