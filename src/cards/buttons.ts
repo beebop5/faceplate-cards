@@ -1,5 +1,5 @@
-import { html, css, nothing } from "lit";
-import { customElement } from "lit/decorators.js";
+import { LitElement, html, css, nothing } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { handleAction } from "../core/actions";
 import { FaceplateCard } from "../core/base-card";
@@ -8,6 +8,7 @@ import { faceplateStyles } from "../core/styles";
 import type { FaceplateBaseConfig, HomeAssistant } from "../core/types";
 
 const CARD = "faceplate-buttons-card";
+const EDITOR = "faceplate-buttons-card-editor";
 
 /**
  * One button in the row. Not a card, so it carries no `type` — everything else
@@ -48,6 +49,10 @@ export interface FaceplateButtonsConfig extends FaceplateBaseConfig {
 @customElement(CARD)
 export class FaceplateButtonsCard extends FaceplateCard<FaceplateButtonsConfig> {
   protected static requiresEntity = false;
+
+  public static async getConfigElement() {
+    return document.createElement(EDITOR);
+  }
 
   public static getStubConfig(): Partial<FaceplateButtonsConfig> {
     return {
@@ -282,6 +287,215 @@ export class FaceplateButtonsCard extends FaceplateCard<FaceplateButtonsConfig> 
   }
 }
 
+/**
+ * The row's editor: a list you can reorder plus one button's form at a time.
+ *
+ * ha-form has no array selector, so the base editor's schema-only pattern
+ * cannot express "a list of buttons" — this is the one hand-built editor in
+ * the suite. Everything inside the selected button is still an ha-form, so
+ * per-field behaviour matches every other card.
+ */
+@customElement(EDITOR)
+export class FaceplateButtonsCardEditor extends LitElement {
+  @property({ attribute: false }) public hass?: HomeAssistant;
+
+  @state() private _config?: FaceplateButtonsConfig;
+  @state() private _selected = 0;
+
+  public setConfig(config: FaceplateButtonsConfig): void {
+    this._config = config;
+    if (this._selected >= (config.buttons?.length ?? 0)) this._selected = 0;
+  }
+
+  static styles = css`
+    .rows {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+    .brow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border: 1px solid var(--divider-color);
+      border-radius: 8px;
+      cursor: pointer;
+      background: none;
+      color: var(--primary-text-color);
+      font: inherit;
+      text-align: left;
+    }
+    .brow.selected {
+      border-color: var(--primary-color);
+    }
+    .brow .grow {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .brow .num {
+      font-family: var(--code-font-family, monospace);
+    }
+    .brow ha-icon-button {
+      --mdc-icon-button-size: 32px;
+      --mdc-icon-size: 18px;
+    }
+    .add {
+      margin-bottom: 12px;
+    }
+  `;
+
+  /** One line that identifies a button in the list. */
+  private _title(b: FaceplateButtonSpec, i: number): string {
+    return (
+      b.name ??
+      b.label ??
+      b.entity ??
+      b.icon?.replace(/^mdi:/, "") ??
+      `Button ${i + 1}`
+    );
+  }
+
+  private _emit(buttons: FaceplateButtonSpec[]): void {
+    this.dispatchEvent(
+      new CustomEvent("config-changed", {
+        detail: { config: { ...this._config, buttons } },
+        bubbles: true,
+        composed: true,
+      })
+    );
+  }
+
+  private _patchSelected(ev: CustomEvent): void {
+    ev.stopPropagation();
+    const value = { ...ev.detail.value } as Record<string, unknown>;
+    for (const [k, v] of Object.entries(value)) {
+      if (v === "" || v === false || v == null) delete value[k];
+    }
+    const buttons = [...this._config!.buttons];
+    // Stripping false is safe here because every boolean on a button spec
+    // defaults to false — absent and false render identically.
+    buttons[this._selected] = value as FaceplateButtonSpec;
+    this._emit(buttons);
+  }
+
+  private _add = (): void => {
+    const buttons = [
+      ...this._config!.buttons,
+      { icon: "mdi:gesture-tap-button", tap_action: { action: "toggle" as const } },
+    ];
+    this._selected = buttons.length - 1;
+    this._emit(buttons);
+  };
+
+  private _remove(i: number, ev: Event): void {
+    ev.stopPropagation();
+    const buttons = this._config!.buttons.filter((_, n) => n !== i);
+    if (buttons.length === 0) return; // the card requires at least one
+    if (this._selected >= buttons.length) this._selected = buttons.length - 1;
+    this._emit(buttons);
+  }
+
+  private _move(i: number, delta: number, ev: Event): void {
+    ev.stopPropagation();
+    const buttons = [...this._config!.buttons];
+    const j = i + delta;
+    if (j < 0 || j >= buttons.length) return;
+    [buttons[i], buttons[j]] = [buttons[j], buttons[i]];
+    this._selected = j;
+    this._emit(buttons);
+  }
+
+  protected render() {
+    if (!this.hass || !this._config) return nothing;
+    const buttons = this._config.buttons ?? [];
+    const sel = buttons[this._selected];
+
+    return html`
+      <div class="rows">
+        ${buttons.map(
+          (b, i) => html`<button
+            type="button"
+            class=${classMap({ brow: true, selected: i === this._selected })}
+            @click=${() => (this._selected = i)}
+          >
+            ${b.label
+              ? html`<span class="num">${b.label}</span>`
+              : html`<ha-icon icon=${b.icon ?? "mdi:gesture-tap-button"}></ha-icon>`}
+            <span class="grow">${this._title(b, i)}</span>
+            <ha-icon-button
+              .path=${"M7,15L12,10L17,15H7Z"}
+              label="Move up"
+              @click=${(e: Event) => this._move(i, -1, e)}
+            ></ha-icon-button>
+            <ha-icon-button
+              .path=${"M7,10L12,15L17,10H7Z"}
+              label="Move down"
+              @click=${(e: Event) => this._move(i, 1, e)}
+            ></ha-icon-button>
+            <ha-icon-button
+              .path=${"M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"}
+              label="Remove"
+              @click=${(e: Event) => this._remove(i, e)}
+            ></ha-icon-button>
+          </button>`
+        )}
+      </div>
+      <mwc-button class="add" outlined @click=${this._add}>Add button</mwc-button>
+      ${sel
+        ? html`<ha-form
+            .hass=${this.hass}
+            .data=${sel}
+            .schema=${BUTTON_SCHEMA}
+            .computeLabel=${(s: { name: string }) =>
+              BUTTON_LABELS[s.name] ?? s.name}
+            .computeHelper=${(s: { name: string }) => BUTTON_HELPERS[s.name]}
+            @value-changed=${this._patchSelected}
+          ></ha-form>`
+        : nothing}
+    `;
+  }
+}
+
+const BUTTON_SCHEMA = [
+  { name: "entity", selector: { entity: {} } },
+  { name: "name", selector: { text: {} } },
+  { name: "icon", selector: { icon: {} } },
+  {
+    type: "grid",
+    name: "",
+    schema: [
+      { name: "label", selector: { text: {} } },
+      { name: "caption", selector: { text: {} } },
+      { name: "icon_badge", selector: { text: {} } },
+      { name: "danger", selector: { boolean: {} } },
+    ],
+  },
+  { name: "tap_action", selector: { ui_action: {} } },
+  { name: "hold_action", selector: { ui_action: {} } },
+];
+
+const BUTTON_LABELS: Record<string, string> = {
+  entity: "Entity (optional — colours the button when on)",
+  name: "Name",
+  icon: "Icon",
+  label: "Text label",
+  caption: "Caption under icon",
+  icon_badge: "Icon badge",
+  danger: "Mark out (action colour)",
+  tap_action: "Tap action",
+  hold_action: "Hold action",
+};
+
+const BUTTON_HELPERS: Record<string, string> = {
+  label: "Replaces the icon with mono text — a fan speed reads faster as 3",
+  caption: "Small text under the icon, like OFF under a ceiling fan",
+  danger: "The one member of a set that undoes the others",
+};
+
 registerCard({
   type: CARD,
   name: "Faceplate Buttons",
@@ -292,6 +506,7 @@ registerCard({
 declare global {
   interface HTMLElementTagNameMap {
     [CARD]: FaceplateButtonsCard;
+    [EDITOR]: FaceplateButtonsCardEditor;
   }
 }
 

@@ -439,12 +439,15 @@ export class FaceplateLightCardEditor extends FaceplateEditor<FaceplateLightConf
     show_controls: "Show buttons",
     min_brightness: "Brightness floor (%)",
     max_brightness: "Brightness ceiling (%)",
+    show_state: "Show state line",
+    show_toggle: "On/off bulb button",
     min_color_temp_kelvin: "Warmest (K)",
     max_color_temp_kelvin: "Coolest (K)",
   };
 
   protected helpers = {
     show_color_temp_control: "Only appears on lights that support colour temperature",
+    show_toggle: "Drop it where the slider is the whole point — zero already means off",
     show_controls: "Off leaves just the readout and sliders",
     max_brightness:
       "The span the card's own 0-100% covers. A ceiling of 60 makes the card's 100% equal 60% output, rescaling the whole slider rather than clipping its top",
@@ -468,6 +471,8 @@ export class FaceplateLightCardEditor extends FaceplateEditor<FaceplateLightConf
           { name: "show_brightness_control", selector: { boolean: {} } },
           { name: "show_color_temp_control", selector: { boolean: {} } },
           { name: "use_light_color", selector: { boolean: {} } },
+          { name: "show_state", selector: { boolean: {} } },
+          { name: "show_toggle", selector: { boolean: {} } },
           { name: "show_controls", selector: { boolean: {} } },
         ],
       },

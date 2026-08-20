@@ -276,12 +276,14 @@ export class FaceplateButtonCardEditor extends FaceplateEditor<FaceplateButtonCo
     show_icon: "Show icon",
     show_state: "Show state",
     accent: "Accent colour",
+    icon_badge: "Icon badge",
     ...ACTION_LABELS,
   };
 
   protected helpers = {
     entity: "Leave empty for a button that only navigates or runs an action",
     accent: "Fill the button with the theme's accent colour at all times",
+    icon_badge: "A digit or two set into the icon's corner, like a numbered fan speed",
   };
 
   protected schema(_config: FaceplateButtonConfig, _hass: HomeAssistant): HaFormSchema[] {
@@ -289,6 +291,7 @@ export class FaceplateButtonCardEditor extends FaceplateEditor<FaceplateButtonCo
       { name: "entity", selector: { entity: {} } },
       { name: "name", selector: { text: {} } },
       { name: "icon", selector: { icon: {} } },
+      { name: "icon_badge", selector: { text: {} } },
       {
         type: "grid",
         name: "",

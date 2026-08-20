@@ -21,7 +21,6 @@ export interface FaceplateClockConfig extends FaceplateBaseConfig {
   time_format?: "12" | "24" | "auto";
   show_seconds?: boolean;
   show_date?: boolean;
-  date_format?: string;
   time_zone?: string;
   /** A `weather` entity, to put today's outlook beside the date. */
   weather_entity?: string;
@@ -461,6 +460,7 @@ export class FaceplateClockCardEditor extends FaceplateEditor<FaceplateClockConf
     clock_size: "medium",
     time_format: "auto",
     show_seconds: false,
+    layout: "stack",
     show_date: true,
     show_weather: true,
   };
@@ -470,6 +470,7 @@ export class FaceplateClockCardEditor extends FaceplateEditor<FaceplateClockConf
     clock_size: "Size",
     time_format: "Time format",
     show_seconds: "Show seconds",
+    layout: "Layout",
     show_date: "Show date",
     time_zone: "Time zone",
     weather_entity: "Weather entity (optional)",
@@ -520,6 +521,18 @@ export class FaceplateClockCardEditor extends FaceplateEditor<FaceplateClockConf
           { name: "show_seconds", selector: { boolean: {} } },
           { name: "show_date", selector: { boolean: {} } },
         ],
+      },
+      {
+        name: "layout",
+        selector: {
+          select: {
+            mode: "dropdown",
+            options: [
+              { value: "stack", label: "Stacked — figures over the date" },
+              { value: "row", label: "Bar — date, time and weather on one line" },
+            ],
+          },
+        },
       },
       { name: "time_zone", selector: { text: {} } },
       {
