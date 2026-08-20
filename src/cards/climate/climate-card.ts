@@ -1030,7 +1030,7 @@ export class FaceplateClimateCard extends LitElement {
          takes the full height on the left and the controls wrap into a block
          beside it, which is both how the space gets used and how the buttons
          get big enough to hit. Below this height nothing changes. */
-      @container (min-height: 96px) {
+      @container (min-height: 88px) {
         .layout-row .lcd {
           align-self: stretch;
           /* Stacked, not side by side. Side by side the name and the setpoint
