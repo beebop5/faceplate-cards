@@ -970,8 +970,8 @@ export class FaceplateClimateCard extends LitElement {
            and slid over the readout. Whichever of the two axes runs out first
            wins; 11cqw is the share five buttons and the readout can agree on. */
         --faceplate-readout-size: clamp(26px, min(34cqh, 9cqw), 56px);
-        --faceplate-button-size: clamp(38px, min(50cqh, 11cqw), 78px);
-        --faceplate-button-max: clamp(42px, min(54cqh, 12cqw), 84px);
+        --faceplate-button-size: clamp(38px, min(50cqh, 12cqw), 78px);
+        --faceplate-button-max: clamp(42px, min(54cqh, 13cqw), 84px);
         --faceplate-icon-size: clamp(20px, min(26cqh, 6cqw), 40px);
         container-type: size;
         /* If this ever lands somewhere its height is indefinite, size
