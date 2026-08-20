@@ -271,7 +271,12 @@ export class FaceplateClockCard extends FaceplateCard<FaceplateClockConfig> {
         --faceplate-clock-size: 30px;
       }
       :host([data-size="large"]) .lcd {
-        --faceplate-clock-size: 64px;
+        /* Not a target so much as a ceiling: --fp-clock-fit caps the figures
+           against the tile's height, so on an ordinary tile this still lands
+           near 64px, and on the tall 120mm panels — where a clock is read from
+           across a dark room — it grows into the space instead of sitting at
+           64px in a 200px box. */
+        --faceplate-clock-size: 132px;
       }
       @container (max-width: 260px) {
         .lcd {
