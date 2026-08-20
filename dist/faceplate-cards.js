@@ -165,12 +165,14 @@ var ce=Object.defineProperty;var ri=Object.getOwnPropertyDescriptor;var k=(o,i)=
   /* The metadata line: IBM Plex Mono, uppercase, tertiary — the spec's
      "FAN — · SWING — · NORMAL" row. Values carry the information; the icons
      that used to sit here said the same thing twice at 14px. */
+  /* Rigid until the strip runs out of room, and then only the last segment
+     gives way — shared shrink abbreviated every word at once, which read as
+     damage across the whole line. */
   .segment {
     display: flex;
     align-items: center;
     gap: 5px;
-    flex: 0 1 auto;
-    min-width: 0;
+    flex: none;
     font-family: var(--faceplate-mono);
     font-size: 11px;
     font-weight: 500;
@@ -194,6 +196,10 @@ var ce=Object.defineProperty;var ri=Object.getOwnPropertyDescriptor;var k=(o,i)=
   }
   .seg-label {
     opacity: 0.75;
+  }
+  .lcd-status .segment:last-child {
+    flex: 0 1 auto;
+    min-width: 0;
   }
   .segment span {
     max-width: 12ch;
