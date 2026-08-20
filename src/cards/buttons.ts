@@ -124,7 +124,7 @@ export class FaceplateButtonsCard extends FaceplateCard<FaceplateButtonsConfig> 
            control and no content, so the frame earns less of the width here
            than it does around a readout, and the buttons take what it gives
            up. */
-        padding: 6px;
+        padding: 4px 6px;
       }
       .row {
         display: flex;
@@ -155,9 +155,11 @@ export class FaceplateButtonsCard extends FaceplateCard<FaceplateButtonsConfig> 
       .row .ctl {
         flex: 0 0 auto;
         width: var(--fp-w);
-        /* Fill the height, but never stretch past a quarter taller than wide.
-           Unbounded, seven buttons on a 889px-tall panel drew 93x200 slivers. */
-        height: min(100%, calc(var(--fp-w) * 1.25));
+        /* Fill the height, but never stretch past half again as tall as wide.
+           Unbounded, seven buttons on a 889px-tall panel drew 93x200 slivers;
+           held at 1.25 they left a band of card showing above and below on a
+           two-row strip, which read as a thick grey border. */
+        height: min(100%, calc(var(--fp-w) * 1.5));
         max-width: none;
         /* The glyph is sized off the button, not the card. Off the card it
            tracked the card's short side, so a one-row row of seven buttons

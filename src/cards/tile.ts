@@ -35,6 +35,9 @@ export interface FaceplateTileConfig extends FaceplateBaseConfig {
  */
 @customElement(CARD)
 export class FaceplateTileCard extends FaceplateCard<FaceplateTileConfig> {
+  /** A tile may be pure navigation, with no entity behind it. */
+  protected static requiresEntity = false;
+
   private _rowHandler?: ActionHandler;
 
   public static async getConfigElement() {
@@ -90,7 +93,13 @@ export class FaceplateTileCard extends FaceplateCard<FaceplateTileConfig> {
       handleAction(this, this.hass, { ...this._config, tap_action: cfg }, "tap");
       return;
     }
-    const domain = this._config.entity!.split(".")[0];
+    // No entity means there is nothing to toggle, so the icon does whatever
+    // the rest of the tile does — for a navigation tile, that is navigate.
+    if (!this._config.entity) {
+      handleAction(this, this.hass, this._config, "tap");
+      return;
+    }
+    const domain = this._config.entity.split(".")[0];
     if (["script", "scene", "button", "input_button"].includes(domain)) {
       // Nothing to toggle on a one-shot entity — press means run.
       const service =
@@ -171,12 +180,17 @@ export class FaceplateTileCard extends FaceplateCard<FaceplateTileConfig> {
     const guard = this._guard();
     if (guard !== null) return guard;
     const config = this._config!;
-    const stateObj = this._stateObj!;
+    // Optional: a tile that only navigates has no entity to speak for, and
+    // borrowing an unrelated one just to have something to colour from makes
+    // the tile light up for reasons the label cannot explain.
+    const stateObj = this._stateObj;
 
-    const on = ["on", "open", "playing", "home"].includes(stateObj.state);
-    const unavailable = stateObj.state === "unavailable";
+    const on = stateObj
+      ? ["on", "open", "playing", "home"].includes(stateObj.state)
+      : false;
+    const unavailable = stateObj?.state === "unavailable";
     const name = friendlyName(stateObj, config.name);
-    const icon = config.icon ?? stateObj.attributes.icon ?? "mdi:eye";
+    const icon = config.icon ?? stateObj?.attributes.icon ?? "mdi:eye";
 
     return html`
       <ha-card
@@ -207,7 +221,7 @@ export class FaceplateTileCard extends FaceplateCard<FaceplateTileConfig> {
         </button>
         <div class="text">
           <span class="primary" title=${name}>${name}</span>
-          ${this._show("show_state")
+          ${this._show("show_state") && stateObj
             ? html`<span class="secondary"
                 >${localizeState(this.hass, stateObj)}</span
               >`
