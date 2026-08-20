@@ -1545,9 +1545,39 @@ var ce=Object.defineProperty;var oi=Object.getOwnPropertyDescriptor;var A=(s,i)=
       ha-card.row .lcd {
         flex-direction: row;
         align-items: baseline;
-        justify-content: center;
+        justify-content: space-between;
         gap: 10px;
         flex-wrap: nowrap;
+      }
+      /* Date left, time centre, weather right. The date and the weather are
+         markup siblings inside .sub, so .sub dissolves and lets all three sit
+         as direct children of the line; giving the outer two equal flex makes
+         the time land dead centre whatever their widths. */
+      ha-card.row .sub {
+        display: contents;
+      }
+      ha-card.row .date {
+        order: 1;
+        flex: 1 1 0;
+        min-width: 0;
+        text-align: left;
+      }
+      ha-card.row .time {
+        order: 2;
+        flex: 0 0 auto;
+        /* Bold rather than much larger: the bar is width-constrained, and
+           weight reads at a glance across a room where a couple of extra
+           pixels of height does not. */
+        font-weight: 700;
+        font-size: 1.12em;
+      }
+      ha-card.row .weather {
+        order: 3;
+        flex: 1 1 0;
+        min-width: 0;
+        display: flex;
+        align-items: baseline;
+        justify-content: flex-end;
       }
       ha-card.row.with-sub,
       ha-card.row.with-label,
@@ -1563,8 +1593,8 @@ var ce=Object.defineProperty;var oi=Object.getOwnPropertyDescriptor;var A=(s,i)=
       ha-card.row .lcd {
         font-size: min(
           var(--faceplate-clock-size, 44px),
-          var(--fp-clock-fit, 76cqh),
-          5.2cqw
+          var(--fp-clock-fit, 68cqh),
+          4.6cqw
         );
         /* The bar is a single line of text, so the generous vertical padding
            the stacked readouts want just draws a grey band above and below
