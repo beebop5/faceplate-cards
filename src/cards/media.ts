@@ -121,6 +121,12 @@ export class FaceplateMediaCard extends FaceplateCard<FaceplateMediaConfig> {
     css`
       ha-card {
         container-type: inline-size;
+        /* Centred as a block rather than spread to the card's edges. An
+           amplifier that reports one usable control had that control pinned
+           to the bottom of the tile with a void above it, which reads as
+           something having failed to load. */
+        justify-content: center;
+        gap: 10px;
       }
       /* Art and text sit side by side: the cover is the fastest way to
          recognise what is playing, and the title alone in a narrow tile
