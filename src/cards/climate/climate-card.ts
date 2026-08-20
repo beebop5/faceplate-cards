@@ -25,6 +25,13 @@ import type {
   SettingEntity,
 } from "./types";
 
+/** The status strip's label for each section — FAN 3, SWING OFF. */
+const SEGMENT_LABELS: Record<string, string> = {
+  fan: "fan",
+  vswing: "swing",
+  hswing: "h-swing",
+};
+
 /** One section on the fan & swing popup. */
 interface FanSection {
   key: "fan" | "vswing" | "hswing";
@@ -451,9 +458,9 @@ export class FaceplateClimateCard extends LitElement {
                     title=${s.title}
                     @click=${() => (this._popup = "config")}
                   >
-                    <ha-icon icon=${s.segmentIcon}></ha-icon>
+                    <span class="seg-label">${SEGMENT_LABELS[s.key] ?? s.key}</span>
                     <span
-                      >${inactive ? "—" : statusLabel(s.source.current ?? "—")}</span
+                      >${inactive ? "—" : statusLabel(s.source.current ?? "—") || "—"}</span
                     >
                   </button>`
                 )}
@@ -619,7 +626,8 @@ export class FaceplateClimateCard extends LitElement {
               ${fanSections.map(
                 (s) => html`<span class="segment">
                   <ha-icon icon=${s.segmentIcon}></ha-icon>
-                  <span>${inactive ? "—" : statusLabel(s.source.current ?? "—")}</span>
+                  <span class="seg-label">${SEGMENT_LABELS[s.key] ?? s.key}</span>
+                  <span>${inactive ? "—" : statusLabel(s.source.current ?? "—") || "—"}</span>
                 </span>`
               )}
             </div>`

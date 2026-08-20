@@ -17,6 +17,13 @@ export interface FaceplateButtonSpec extends Omit<FaceplateBaseConfig, "type"> {
   /** A digit set into the icon's corner, as on the button card. */
   icon_badge?: string;
   /**
+   * Text rendered in place of the icon, in the metadata mono face — the
+   * spec's numeral chips. A fan speed reads faster as "3" than as any glyph.
+   */
+  label?: string;
+  /** Small mono caption under the icon — the OFF under a ceiling fan. */
+  caption?: string;
+  /**
    * Mark this one out from the rest of the row. Meant for the member of a set
    * that undoes the others — the Off at the head of a row of fan speeds, which
    * is otherwise the hardest thing in the row to pick out in a hurry.
@@ -178,12 +185,33 @@ export class FaceplateButtonsCard extends FaceplateCard<FaceplateButtonsConfig> 
       .ctl ha-icon {
         --mdc-icon-size: clamp(14px, 55cqmin, 34px);
       }
-      /* Tinted and outlined rather than filled: filled would read as "on",
-         which is the opposite of what this button does. */
+      /* The marked-out member of a set — the Off at the head of the fan
+         speeds. Terracotta action treatment, not red: it is the "do
+         something" accent, and red is reserved for the destructive. */
       .ctl.danger {
-        color: var(--error-color, #db4437);
-        background: rgba(219, 68, 55, 0.16);
-        box-shadow: inset 0 0 0 2px var(--error-color, #db4437);
+        color: var(--faceplate-action-active, var(--primary-color));
+        background: var(--faceplate-action-fill-bg, rgba(183, 90, 51, 0.18));
+        box-shadow: inset 0 0 0 1px var(--faceplate-action, var(--primary-color));
+      }
+      /* Numeral chips: the value is the label, in the metadata mono. */
+      .ctl .num {
+        font-family: var(--faceplate-mono, monospace);
+        font-size: clamp(13px, 30cqmin, 17px);
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
+      }
+      .ctl .stack {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1px;
+      }
+      .ctl .caption {
+        font-family: var(--faceplate-mono, monospace);
+        font-size: 9px;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        line-height: 1;
       }
       .glyph {
         position: relative;
@@ -232,12 +260,19 @@ export class FaceplateButtonsCard extends FaceplateCard<FaceplateButtonsConfig> 
               @pointercancel=${() => this._up(i)}
               @contextmenu=${(e: Event) => e.preventDefault()}
             >
-              ${spec.icon_badge
-                ? html`<span class="glyph">
-                    <ha-icon icon=${spec.icon}></ha-icon>
-                    <span class="glyph-badge">${spec.icon_badge}</span>
-                  </span>`
-                : html`<ha-icon icon=${spec.icon}></ha-icon>`}
+              ${spec.label
+                ? html`<span class="num">${spec.label}</span>`
+                : spec.caption
+                  ? html`<span class="stack">
+                      <ha-icon icon=${spec.icon}></ha-icon>
+                      <span class="caption">${spec.caption}</span>
+                    </span>`
+                  : spec.icon_badge
+                    ? html`<span class="glyph">
+                        <ha-icon icon=${spec.icon}></ha-icon>
+                        <span class="glyph-badge">${spec.icon_badge}</span>
+                      </span>`
+                    : html`<ha-icon icon=${spec.icon}></ha-icon>`}
             </button>`;
           })}
         </div>

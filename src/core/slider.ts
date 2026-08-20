@@ -38,8 +38,10 @@ export class FaceplateSlider extends LitElement {
     .track {
       position: relative;
       height: var(--faceplate-slider-height, 42px);
-      border-radius: 12px;
-      background: var(--faceplate-lcd-background, var(--secondary-background-color));
+      border-radius: var(--faceplate-control-radius, 10px);
+      background: var(--card-background-color, var(--secondary-background-color));
+      box-shadow: inset 0 0 0 1px
+        var(--faceplate-border, var(--divider-color, rgba(127, 127, 127, 0.3)));
       box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.12);
       overflow: hidden;
       cursor: pointer;
@@ -54,7 +56,16 @@ export class FaceplateSlider extends LitElement {
     .fill {
       position: absolute;
       inset: 0 auto 0 0;
-      background: var(--faceplate-slider-fill, var(--primary-color));
+      /* Terracotta into brass along the travel, per the spec — the two theme
+         accents, so a palette change recolours every slider at once. */
+      background: var(
+        --faceplate-slider-fill,
+        linear-gradient(
+          90deg,
+          var(--slider-color, #b75a33),
+          var(--slider-secondary-color, #c89a4b)
+        )
+      );
       transition: width 0.12s ease-out;
     }
     .track.dragging .fill {

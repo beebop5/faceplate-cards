@@ -230,10 +230,10 @@ export class FaceplateClockCard extends FaceplateCard<FaceplateClockConfig> {
       ha-card.row .time {
         order: 2;
         flex: 0 0 auto;
-        /* Bold rather than much larger: the bar is width-constrained, and
-           weight reads at a glance across a room where a couple of extra
-           pixels of height does not. */
-        font-weight: 700;
+        /* Archivo 500 with a little tracking, per the status-bar spec —
+           weight and spacing carry it, not size. */
+        font-weight: 500;
+        letter-spacing: 0.02em;
         font-size: 1.12em;
       }
       ha-card.row .weather {

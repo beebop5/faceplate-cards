@@ -18,18 +18,27 @@ export const faceplateTokens = css`
     container-type: inline-size;
     height: 100%;
 
-    --faceplate-radius: 12px;
-    /* Controls are rounded squares, not circles. */
-    --faceplate-control-radius: 12px;
+    /* Brick & Brass: one radius everywhere — no pills, no circles. */
+    --faceplate-radius: 10px;
+    --faceplate-control-radius: 10px;
     --faceplate-gap: 8px;
     --faceplate-padding: 10px;
     --faceplate-button-size: 44px;
     --faceplate-button-max: 52px;
     --faceplate-icon-size: 24px;
-    --faceplate-lcd-background: var(
-      --faceplate-lcd-bg,
-      var(--secondary-background-color)
-    );
+    --faceplate-lcd-background: var(--faceplate-lcd-bg, transparent);
+    /* The Brick & Brass token set, themeable with spec values as fallbacks.
+       Two accents only: terracotta means "do something", brass means
+       "something is on". */
+    --faceplate-border: var(--ha-card-border-color, var(--divider-color, #4c3c2d));
+    --faceplate-raised: var(--faceplate-raised-bg, #2a211a);
+    --faceplate-action: var(--primary-color, #b75a33);
+    --faceplate-on: var(--state-icon-active-color, var(--accent-color, #c89a4b));
+    --faceplate-on-fill-bg: var(--faceplate-on-fill, rgba(200, 154, 75, 0.16));
+    --faceplate-action-fill-bg: var(--faceplate-action-fill, rgba(183, 90, 51, 0.18));
+    --faceplate-action-active: var(--faceplate-action-active-text, #d98a5f);
+    --faceplate-mono: "IBM Plex Mono", ui-monospace, monospace;
+    font-family: var(--primary-font-family, Archivo, sans-serif);
   }
 `;
 
@@ -81,7 +90,6 @@ export const lcdStyles = css`
     border-radius: var(--faceplate-radius);
     padding: 10px 16px 8px;
     background: var(--faceplate-lcd-background);
-    box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.12);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -106,8 +114,8 @@ export const lcdStyles = css`
     gap: 8px;
   }
   .name {
-    font-size: 12px;
-    font-weight: 500;
+    font-size: 15px;
+    font-weight: 600;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -134,7 +142,7 @@ export const lcdStyles = css`
     margin-left: 1px;
   }
   .aux {
-    font-size: 11px;
+    font-size: 13px;
     color: var(--secondary-text-color);
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
@@ -154,28 +162,41 @@ export const lcdStyles = css`
   .lcd-status {
     align-self: stretch;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     flex-wrap: wrap;
-    gap: 2px 12px;
+    gap: 2px 6px;
     margin-top: 3px;
-    padding-top: 5px;
-    border-top: 1px dashed var(--divider-color, rgba(0, 0, 0, 0.12));
   }
+  /* The metadata line: IBM Plex Mono, uppercase, tertiary — the spec's
+     "FAN — · SWING — · NORMAL" row. Values carry the information; the icons
+     that used to sit here said the same thing twice at 14px. */
   .segment {
     display: flex;
     align-items: center;
-    gap: 3px;
+    gap: 5px;
+    font-family: var(--faceplate-mono);
     font-size: 11px;
-    color: var(--secondary-text-color);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--disabled-text-color, var(--secondary-text-color));
     border-radius: 6px;
-    padding: 1px 4px;
+    padding: 1px 2px;
+  }
+  .segment + .segment::before {
+    content: "·";
+    margin-right: 5px;
+    opacity: 0.7;
   }
   button.segment:hover {
     background: rgba(127, 127, 127, 0.15);
     color: var(--primary-text-color);
   }
   .segment ha-icon {
-    --mdc-icon-size: 14px;
+    display: none;
+  }
+  .seg-label {
+    opacity: 0.75;
   }
   .segment span {
     max-width: 12ch;
@@ -210,8 +231,9 @@ export const buttonStyles = css`
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--secondary-background-color);
-    color: var(--primary-text-color);
+    background: var(--faceplate-raised);
+    box-shadow: inset 0 0 0 1px var(--faceplate-border);
+    color: var(--secondary-text-color);
     transition: background 0.15s;
   }
   .ctl ha-icon {
@@ -219,16 +241,18 @@ export const buttonStyles = css`
     max-width: 100%;
   }
   .ctl:hover:not(:disabled) {
-    background: rgba(127, 127, 127, 0.3);
+    filter: brightness(0.92);
   }
-  /* The accented button — the primary action on any given card. */
+  /* The accented button — the primary action on any given card. Solid
+     terracotta, no border: the one thing on the card asking to be pressed. */
   .ctl.accent {
-    background: var(--primary-color);
-    color: var(--text-primary-color, #fff);
+    background: var(--faceplate-action);
+    box-shadow: none;
+    color: var(--text-primary-color, #f5ede0);
   }
   .ctl.accent:hover:not(:disabled) {
-    background: var(--primary-color);
-    filter: brightness(1.1);
+    background: var(--faceplate-action);
+    filter: brightness(0.92);
   }
   /* An "active" button tints itself with its own state colour, which the card
      supplies as the element's color — the climate card passes the HVAC mode's
@@ -241,13 +265,9 @@ export const buttonStyles = css`
      so the ring, which needs no color-mix, is what actually carries the state.
      Where color-mix does work the two reinforce each other. */
   .ctl.on {
-    box-shadow: inset 0 0 0 2px currentColor;
-    background: var(--secondary-background-color);
-    background: color-mix(
-      in srgb,
-      currentColor 26%,
-      var(--secondary-background-color)
-    );
+    box-shadow: inset 0 0 0 1px currentColor;
+    background: var(--faceplate-on-fill-bg);
+    color: var(--faceplate-on);
   }
   .ctl.off {
     color: var(--secondary-text-color);
@@ -284,10 +304,11 @@ export const chipStyles = css`
     gap: 5px;
     min-height: 36px;
     padding: 5px 8px;
-    border-radius: 9px;
+    border-radius: var(--faceplate-control-radius);
     font-size: 13px;
-    background: var(--secondary-background-color);
-    color: var(--primary-text-color);
+    background: var(--faceplate-raised);
+    box-shadow: inset 0 0 0 1px var(--faceplate-border);
+    color: var(--secondary-text-color);
     white-space: nowrap;
     flex: 1 1 auto;
     min-width: 72px;
@@ -306,8 +327,9 @@ export const chipStyles = css`
     --mdc-icon-size: 18px;
   }
   .chip.active {
-    background: var(--primary-color);
-    color: var(--text-primary-color, #fff);
+    background: var(--faceplate-action-fill-bg);
+    box-shadow: inset 0 0 0 1px var(--faceplate-action);
+    color: var(--faceplate-action-active);
     font-weight: 600;
   }
   .row {
