@@ -1063,8 +1063,12 @@ var pe=Object.defineProperty;var ci=Object.getOwnPropertyDescriptor;var $=(s,i)=
         .display-only .badge ha-icon {
           --mdc-icon-size: 18px;
         }
+        /* The word stays: a bare power glyph reads as a button, not a
+           state, and "Off" is the single most load-bearing word on a status
+           tile. It shrinks rather than disappears. */
         .display-only .badge > span {
-          display: none;
+          display: inline;
+          font-size: 11px;
         }
         .display-only .segment {
           font-size: 10px;
