@@ -46,4 +46,4 @@ export interface ControlSource {
   set: (value: string) => void;
 }
 
-export type PopupKind = "config";
+export type PopupKind = "config" | "fan";

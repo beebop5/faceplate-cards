@@ -353,22 +353,17 @@ export class FaceplateClimateCard extends LitElement {
     }
   };
 
-  /** Short press steps to the next fan speed; a long press has already opened
-   *  the sheet, where the whole set is laid out at once. A button sitting in a
-   *  row of working controls has to control something — opening a dialog on
-   *  tap made the row read as five buttons of which three did nothing. */
-  private _cycleFan = (section: FanSection): void => {
+  /** Short press opens the fan chooser — pick a speed in one further tap. A
+   *  press-and-cycle design was tried first and retired: with six speeds and
+   *  a command round-trip before the state echoes back, blind cycling meant
+   *  tapping at a number you could not see settle. A long press has already
+   *  opened the full sheet; the trailing click is swallowed. */
+  private _fanPress = (): void => {
     if (this._longPressed) {
       this._longPressed = false;
       return;
     }
-    const { options, current } = section.source;
-    if (!options.length) {
-      this._popup = "config";
-      return;
-    }
-    const next = options[(options.indexOf(current ?? "") + 1) % options.length];
-    section.source.set(next);
+    this._popup = "fan";
   };
 
   /* ------------------------------------------------------------------ */
@@ -520,7 +515,7 @@ export class FaceplateClimateCard extends LitElement {
                 class="ctl"
                 title="Fan speed (hold for all settings)"
                 .disabled=${unavailable}
-                @click=${() => this._cycleFan(fanControl)}
+                @click=${this._fanPress}
                 @pointerdown=${this._pressStart}
                 @pointerup=${this._pressEnd}
                 @pointerleave=${this._pressEnd}
@@ -563,6 +558,49 @@ export class FaceplateClimateCard extends LitElement {
   private _renderPopup(fanSections: FanSection[]) {
     if (!this._popup) return nothing;
     const close = () => (this._popup = null);
+
+    if (this._popup === "fan") {
+      const fan = fanSections.find((s) => s.key === "fan");
+      if (!fan) return nothing;
+      return html`
+        <dialog class="popup-backdrop" @click=${close} @close=${close}>
+          <div
+            class="popup popup-compact"
+            aria-label="Fan speed"
+            @click=${(e: Event) => e.stopPropagation()}
+          >
+            <div class="popup-header">
+              <span>Fan speed</span>
+              <button class="close" @click=${close}>
+                <ha-icon icon="mdi:close"></ha-icon>
+              </button>
+            </div>
+            <div class="popup-body">
+              <div class="chips">
+                ${fan.source.options.map((o) => {
+                  const carried = fanSpeedLabel(o);
+                  return html`<button
+                    class=${classMap({
+                      chip: true,
+                      "chip-icon": carried !== null,
+                      active: o === fan.source.current,
+                    })}
+                    title=${prettify(o)}
+                    @click=${() => {
+                      fan.source.set(o);
+                      close();
+                    }}
+                  >
+                    ${this._renderFanChipIcon(o, fan.icon(o), carried)}
+                    ${carried === null ? prettify(o) : nothing}
+                  </button>`;
+                })}
+              </div>
+            </div>
+          </div>
+        </dialog>
+      `;
+    }
 
     const climate = this._stateObj!;
     const unavailable = climate.state === "unavailable";
@@ -1102,6 +1140,9 @@ export class FaceplateClimateCard extends LitElement {
         }
       }
 
+      .popup-compact {
+        width: min(340px, 92vw);
+      }
       .layout-large {
         --faceplate-readout-size: 52px;
         --faceplate-button-size: 56px;
