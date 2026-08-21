@@ -353,18 +353,6 @@ export class FaceplateClimateCard extends LitElement {
     }
   };
 
-  /** Short press opens the fan chooser — pick a speed in one further tap. A
-   *  press-and-cycle design was tried first and retired: with six speeds and
-   *  a command round-trip before the state echoes back, blind cycling meant
-   *  tapping at a number you could not see settle. A long press has already
-   *  opened the full sheet; the trailing click is swallowed. */
-  private _fanPress = (): void => {
-    if (this._longPressed) {
-      this._longPressed = false;
-      return;
-    }
-    this._popup = "fan";
-  };
 
   /* ------------------------------------------------------------------ */
   /* Rendering                                                           */
@@ -382,9 +370,6 @@ export class FaceplateClimateCard extends LitElement {
     const mode = stateObj.state;
     const modeColor = HVAC_MODE_COLORS[mode] ?? HVAC_MODE_COLORS.off;
     const fanSections = this._fanSections();
-    // Only the speed section is cyclable from the row; swing and preset stay
-    // in the sheet, where their options are named rather than guessed at.
-    const fanControl = fanSections.find((s) => s.key === "fan");
     const layout = this._config.layout ?? "standard";
     const name =
       this._config.name ?? stateObj.attributes.friendly_name ?? "";
@@ -510,21 +495,6 @@ export class FaceplateClimateCard extends LitElement {
                 ></ha-icon>
               </button>`
             : nothing}
-          ${fanControl
-            ? html`<button
-                class="ctl"
-                title="Fan speed (hold for all settings)"
-                .disabled=${unavailable}
-                @click=${this._fanPress}
-                @pointerdown=${this._pressStart}
-                @pointerup=${this._pressEnd}
-                @pointerleave=${this._pressEnd}
-                @pointercancel=${this._pressEnd}
-                @contextmenu=${(e: Event) => e.preventDefault()}
-              >
-                <ha-icon icon=${fanControl.segmentIcon}></ha-icon>
-              </button>`
-            : nothing}
           ${this._hasSettings()
             ? html`<button
                 class="ctl"
@@ -559,48 +529,6 @@ export class FaceplateClimateCard extends LitElement {
     if (!this._popup) return nothing;
     const close = () => (this._popup = null);
 
-    if (this._popup === "fan") {
-      const fan = fanSections.find((s) => s.key === "fan");
-      if (!fan) return nothing;
-      return html`
-        <dialog class="popup-backdrop" @click=${close} @close=${close}>
-          <div
-            class="popup popup-compact"
-            aria-label="Fan speed"
-            @click=${(e: Event) => e.stopPropagation()}
-          >
-            <div class="popup-header">
-              <span>Fan speed</span>
-              <button class="close" @click=${close}>
-                <ha-icon icon="mdi:close"></ha-icon>
-              </button>
-            </div>
-            <div class="popup-body">
-              <div class="chips">
-                ${fan.source.options.map((o) => {
-                  const carried = fanSpeedLabel(o);
-                  return html`<button
-                    class=${classMap({
-                      chip: true,
-                      "chip-icon": carried !== null,
-                      active: o === fan.source.current,
-                    })}
-                    title=${prettify(o)}
-                    @click=${() => {
-                      fan.source.set(o);
-                      close();
-                    }}
-                  >
-                    ${this._renderFanChipIcon(o, fan.icon(o), carried)}
-                    ${carried === null ? prettify(o) : nothing}
-                  </button>`;
-                })}
-              </div>
-            </div>
-          </div>
-        </dialog>
-      `;
-    }
 
     const climate = this._stateObj!;
     const unavailable = climate.state === "unavailable";
@@ -1107,13 +1035,12 @@ export class FaceplateClimateCard extends LitElement {
           justify-content: space-between;
           gap: 8px;
         }
-        /* A real grid rather than a wrapped row: wrapping left the last two
-           buttons hanging off one end, which is the sort of thing that reads
-           as a bug even when it is only a shrug. Three columns, so five
-           controls sit in fixed positions with one empty cell. */
+        /* A real grid rather than a wrapped row: wrapping left stragglers
+           hanging off one end. Two columns for the four controls — minus,
+           plus, power, settings — a full square with no empty cell. */
         .layout-row .controls {
           display: grid;
-          grid-template-columns: repeat(3, var(--faceplate-button-max, 42px));
+          grid-template-columns: repeat(2, var(--faceplate-button-max, 42px));
           justify-content: end;
           align-content: center;
           gap: 5px;
@@ -1140,9 +1067,6 @@ export class FaceplateClimateCard extends LitElement {
         }
       }
 
-      .popup-compact {
-        width: min(340px, 92vw);
-      }
       .layout-large {
         --faceplate-readout-size: 52px;
         --faceplate-button-size: 56px;
